@@ -1,0 +1,13 @@
+# Copy to run_<exp>_NNN.yaml and change ONE factor per run.
+run_id: "run_e1_001"
+experiment: e1            # e1 | e2 | e1_scale | bonus
+hypothesis: "baseline — exact PyTorch KNN on FiQA dev"
+dataset: fiqa             # fiqa | scifact
+split: dev                # train | dev  (test only via --final, see experiment_loop.md)
+method: torch_knn         # torch_knn | faiss_flat | faiss_ivf | kmeans_index
+method_params: {}         # e.g. {nlist: 240, nprobe: 16} for faiss_ivf
+pca_dim: null             # null = 384 (no PCA) | 128 | 64 | 32
+k: 10
+corpus_size: null         # null = full corpus | 10000 | 25000  (E1-scale)
+latency_queries: 200      # queries used for timing
+random_seed: 42

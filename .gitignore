@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Environments
+.venv/
+venv/
+.env
+*.env.local
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data and large artifacts (regenerate locally)
+data/
+*.npy
+*.pt
+*.pkl
+*.faiss
+
+# Agent run outputs (internal)
+experiments/results/
+experiments/runs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/settings.json

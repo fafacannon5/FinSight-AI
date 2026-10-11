@@ -1,0 +1,12 @@
+run_id: "run_e1_000"
+experiment: e1
+hypothesis: "The end-to-end SciFact retrieval pipeline runs successfully and produces valid retrieval metrics."
+dataset: scifact
+split: test               # allowed: SciFact is only for debugging, never reported
+method: torch_knn
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 100
+random_seed: 42
