@@ -26,7 +26,8 @@ to `validation`. qrels ids are int64 on the Hub → cast with `str()`. Download 
 Notes:
 - Retrieval unit = whole document. Long docs are truncated by the encoder (MiniLM max 256 word pieces) —
   report as a limitation.
-- Embedding cache: 57,638 × 384 × 4 B ≈ 88 MB → `data/` (gitignored).
+- Embedding cache: 57,638 × 384 × 4 B ≈ 88 MB → `data/fiqa_corpus_minilm.npy` (gitignored), rows in `sorted(corpus)`
+  order, ids saved alongside in `data/fiqa_corpus_minilm.ids.json`. Built 2026-10-25 (M3): 195 s on MPS, all norms 1.0.
 - **ID-type pitfall.** All ids must be `str`. If ids mismatch (int `1` vs str `"1"`), nothing matches and every
   metric silently becomes 0 — no error. Where it can come back:
   1. Mapping search rows back to ids: FAISS / TorchKNN return row numbers; `doc_ids[row]` must use the same list,

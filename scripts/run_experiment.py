@@ -53,13 +53,13 @@ def main() -> int:
 
     cache = REPO / "data" / f"{cfg['dataset']}_corpus_minilm.npy"
     all_ids = sorted(corpus)
-    all_emb = load_or_encode(str(cache), [corpus[d] for d in all_ids])
+    all_emb = load_or_encode(str(cache), [corpus[d] for d in all_ids], ids=all_ids)
     pos = {d: i for i, d in enumerate(all_ids)}
     doc_emb = all_emb[[pos[d] for d in doc_ids]]
 
     qids = sorted(queries)
     q_emb = load_or_encode(str(REPO / "data" / f"{cfg['dataset']}_{cfg['split']}_queries_minilm.npy"),
-                           [queries[q] for q in qids])
+                           [queries[q] for q in qids], ids=qids)
 
     if cfg.get("pca_dim"):
         from finsight.pca import PCAReducer

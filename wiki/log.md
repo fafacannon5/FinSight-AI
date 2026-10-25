@@ -2,6 +2,17 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-25] milestone | M3 embedding cache built → ready for merge I1
+
+- First model download with J's OK: sentence-transformers/all-MiniLM-L6-v2 (model.safetensors 87 MB) → ~/.cache/huggingface/
+- encode(["hello"]) → (1, 384), norm 1.0 ✓
+- data/fiqa_corpus_minilm.npy (57,638, 384) float32, all row norms 1.0000, finite ✓ — 195 s on Apple Silicon (MPS)
+- data/scifact_corpus_minilm.npy (5,183, 384) ✓ — 30 s
+- Cache now keyed by an id list (`*.ids.json`); alignment spot check: 5 random docs re-encoded, cos = 1.0 with cached rows
+- Disclosure correction: embed.py, timing.py, run_experiment.py were full code in the original scaffold (AI_USAGE.md)
+- Next: merge I1 (PR shared/foundation → main, reviewer H), then M4 TorchKNN (H)
+- Pages updated: dataset/fiqa.md, overview.md
+
 ## [2026-10-25] milestone | M2 load_beir verified on SciFact + FiQA
 
 - First dataset download with J's OK: BeIR/scifact (~4.5 MB) + BeIR/fiqa (~28 MB) → ~/.cache/huggingface/
