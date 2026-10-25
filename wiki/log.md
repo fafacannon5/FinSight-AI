@@ -2,6 +2,13 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-25] milestone | M1 metrics.py complete
+
+- `recall_at_k`, `mrr_at_k`, `ndcg_at_k` implemented on branch `shared/foundation`; `tests/test_metrics.py` 7/7 pass
+- Written by Claude at J's request (full code + line-by-line explanation); disclosed in AI_USAGE.md
+- Next: M2 `data.py` (first dataset download — explain before running)
+- Pages updated: overview.md
+
 ## [2026-10-11] decision | Framework adjustments after review
 
 - Agents never commit or push on their own; they suggest commit messages

@@ -7,3 +7,4 @@ Every agent-assisted change gets a row. The final report's "Use of AI Tools" sec
 |---|---|---|---|---|
 | 2026-10-11 | Project scope, proposal draft | Claude, ChatGPT | Brainstorming and drafting | J, H |
 | 2026-10-11 | Repo structure, agent docs, stubs, unit tests | Claude | Scaffold (stubs raise NotImplementedError; tests define expected behavior) | J |
+| 2026-10-25 | `src/finsight/metrics.py` `recall_at_k`, `mrr_at_k`, `ndcg_at_k` | Claude | Full code (Level-1 scaffold, then blanks filled by Claude at member's request) + line-by-line explanation of Recall/MRR/nDCG | J |
