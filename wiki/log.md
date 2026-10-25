@@ -2,6 +2,20 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-25] milestone | M7 PCAReducer passes tests (branch j/e2-pca)
+
+- `tests/test_pca.py` 4/4 pass (incl. sklearn match up to sign)
+- Corpus-only sanity check on FiQA (no queries used): variance kept 128-d 0.795 · 64-d 0.614 · 32-d 0.456;
+  rows unit-norm, no NaN; fit + transform ≈ 1 s
+- Written by Claude at J's request after a PCA walkthrough + quiz; disclosed in AI_USAGE.md
+- Next: merge I3 (PR j/e2-pca → main, reviewer H); E2 runs need H's TorchKNN (I2)
+- Pages updated: overview.md
+
+## [2026-10-25] merge | I1: shared/foundation → main (PR #1)
+
+- M1–M3 on main as 111c4e9; `shared/foundation` deleted locally and on GitHub
+- Merge was clicked from J's account; ask H to review PR #1 afterwards. Process: reviewer merges.
+
 ## [2026-10-25] milestone | M3 embedding cache built → ready for merge I1
 
 - First model download with J's OK: sentence-transformers/all-MiniLM-L6-v2 (model.safetensors 87 MB) → ~/.cache/huggingface/
