@@ -14,8 +14,8 @@ status: active
 ## Current status
 
 **Phase:** proposal finalized → setting up repo (Week 10 tasks).
-**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics (2026-10-25).
-**Next:** M2 data loading → M3 embedding cache (see [guide.md](../agents/workflow/guide.md) milestones).
+**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading (2026-10-25).
+**Next:** M3 embedding cache → merge I1 (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 

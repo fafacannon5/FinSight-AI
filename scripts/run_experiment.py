@@ -76,6 +76,11 @@ def main() -> int:
     metrics = {"run_id": cfg["run_id"], "experiment": cfg["experiment"], "split": cfg["split"],
                "n_docs": len(doc_ids), "n_queries": len(qids), "dim": int(doc_emb.shape[1])}
     metrics.update(evaluate_all(retrieved, qrels))
+    if metrics["recall@10"] == 0:  # real retrieval never scores exactly 0; an id mismatch does
+        print("Refusing to write metrics.json: Recall@10 == 0. Likely an id mismatch — check that "
+              "doc_ids[row] maps search rows to the same order as the embedding cache, and that "
+              "retrieved / qrels ids are both str.", file=sys.stderr)
+        return 3
     metrics.update(measure_latency(index, q_emb, k, max_queries=cfg.get("latency_queries", 200)))
     metrics["build_time_s"] = build_s
     metrics["index_memory_mb"] = index.memory_mb()

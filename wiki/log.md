@@ -2,6 +2,15 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-25] milestone | M2 load_beir verified on SciFact + FiQA
+
+- First dataset download with J's OK: BeIR/scifact (~4.5 MB) + BeIR/fiqa (~28 MB) → ~/.cache/huggingface/
+- SciFact: 5,183 docs, 300 test queries ✓ · FiQA: 57,638 docs, 5,500 / 500 / 648 queries ✓
+- Gotchas: qrels ids are int64 on the Hub (cast to str); FiQA dev split is named `validation`
+- `load_beir` written by Claude at J's request; disclosed in AI_USAGE.md
+- Next: M3 `embed.py` (first model download: all-MiniLM-L6-v2 — explain before running)
+- Pages updated: dataset/scifact.md, dataset/fiqa.md, overview.md
+
 ## [2026-10-25] milestone | M1 metrics.py complete
 
 - `recall_at_k`, `mrr_at_k`, `ndcg_at_k` implemented on branch `shared/foundation`; `tests/test_metrics.py` 7/7 pass
