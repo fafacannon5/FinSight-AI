@@ -53,13 +53,13 @@ def main() -> int:
 
     cache = REPO / "data" / f"{cfg['dataset']}_corpus_minilm.npy"
     all_ids = sorted(corpus)
-    all_emb = load_or_encode(str(cache), [corpus[d] for d in all_ids])
+    all_emb = load_or_encode(str(cache), [corpus[d] for d in all_ids], ids=all_ids)
     pos = {d: i for i, d in enumerate(all_ids)}
     doc_emb = all_emb[[pos[d] for d in doc_ids]]
 
     qids = sorted(queries)
     q_emb = load_or_encode(str(REPO / "data" / f"{cfg['dataset']}_{cfg['split']}_queries_minilm.npy"),
-                           [queries[q] for q in qids])
+                           [queries[q] for q in qids], ids=qids)
 
     if cfg.get("pca_dim"):
         from finsight.pca import PCAReducer
@@ -76,6 +76,11 @@ def main() -> int:
     metrics = {"run_id": cfg["run_id"], "experiment": cfg["experiment"], "split": cfg["split"],
                "n_docs": len(doc_ids), "n_queries": len(qids), "dim": int(doc_emb.shape[1])}
     metrics.update(evaluate_all(retrieved, qrels))
+    if metrics["recall@10"] == 0:  # real retrieval never scores exactly 0; an id mismatch does
+        print("Refusing to write metrics.json: Recall@10 == 0. Likely an id mismatch — check that "
+              "doc_ids[row] maps search rows to the same order as the embedding cache, and that "
+              "retrieved / qrels ids are both str.", file=sys.stderr)
+        return 3
     metrics.update(measure_latency(index, q_emb, k, max_queries=cfg.get("latency_queries", 200)))
     metrics["build_time_s"] = build_s
     metrics["index_memory_mb"] = index.memory_mb()

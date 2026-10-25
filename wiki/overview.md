@@ -3,7 +3,7 @@ title: "Project overview"
 type: overview
 tags: [cs541, rag, meta]
 created: 2026-10-11
-updated: 2026-10-11
+updated: 2026-10-25
 status: active
 ---
 
@@ -14,8 +14,8 @@ status: active
 ## Current status
 
 **Phase:** proposal finalized → setting up repo (Week 10 tasks).
-**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded.
-**Next:** M1 metrics → M2 data loading → M3 embedding cache (see [guide.md](../agents/workflow/guide.md) milestones).
+**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache (2026-10-25).
+**Next:** merge I1 (PR to main, reviewer H) → M4 TorchKNN (H) (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 
