@@ -19,6 +19,24 @@ pip install -r requirements.txt
 pytest -q                                            # unit tests (synthetic data, no downloads)
 ```
 
+### macOS: FAISS and PyTorch each ship their own OpenMP runtime
+
+On macOS, the PyPI builds of `torch` and `faiss-cpu` each bundle a copy of `libomp`. Importing both
+in one process and calling `index.search()` aborts the interpreter (`OMP: Error #15`, then a
+segmentation fault). This breaks `tests/test_retrieval.py` and any experiment that uses the FAISS
+back ends — the code itself is fine.
+
+```bash
+# quick workaround: one OpenMP thread avoids the duplicate-runtime abort (test_retrieval.py 6/6 pass)
+KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 pytest -q tests/test_retrieval.py
+KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 python scripts/run_experiment.py <config>.yaml
+
+# permanent fix: install FAISS from conda so both share conda's llvm-openmp
+conda install -c conda-forge faiss-cpu
+```
+
+`TorchKNN` and `KMeansIndex` are pure PyTorch and unaffected.
+
 ## Run
 
 ```bash
