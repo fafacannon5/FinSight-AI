@@ -2,6 +2,23 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-28] experiment | latency re-measured at natural thread counts (E1 caveat closed)
+
+- Root cause confirmed: three distinct `libomp` files on this machine (torch's own, conda's, and the
+  one bundled in the faiss wheel) → `OMP: Error #15`. `KMP_DUPLICATE_LIB_OK=TRUE` alone lets the
+  process start but segfaults on the full 57,638-doc corpus, so `OMP_NUM_THREADS=1` is the part that
+  keeps runs stable — and it unfairly caps FAISS at one thread.
+- Installing `faiss-cpu` from conda-forge would NOT fix it (torch keeps its own libomp). Rejected
+  after checking `otool -L`; README's earlier "permanent fix" line retracted.
+- Fix: measure each back end in a process that imports only the library it needs. New
+  `scripts/bench_faiss_isolated.py` (numpy + faiss only, refuses to run if torch is already imported);
+  torch_knn measured by `run_experiment.py` with no env vars at all.
+- p95 ms, single thread → natural threads: torch_knn 0.7674 → 0.7645 · faiss_flat 1.2350 → 0.8285 ·
+  ivf nprobe 1/4/16/64 = 0.0153→0.0164 / 0.0356→0.0378 / 0.1065→0.1137 / 0.3659→0.3913
+- Conclusions unchanged except one: ivf nprobe 16 is 6.7× (not 7.2×); faiss_flat vs torch_knn is an
+  8% tie (not 1.6× slower). Accuracy numbers untouched. Noise floor ≈ ±10% on p95.
+- Pages updated: e1_summary.md (new caveat section + next hypothesis), e1_run_002.md, README.md
+
 ## [2026-10-28] experiment | E1 grid complete on FiQA dev (runs 001-006 + bonus 001)
 
 - FiQA dev, 57,638 docs, 500 queries, dim 384, k=10, nlist=240 (≈√N); first FiQA download (~28 MB)

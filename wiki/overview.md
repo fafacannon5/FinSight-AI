@@ -15,7 +15,7 @@ status: active
 
 **Phase:** proposal finalized → E1 experimentation (Week 10 tasks).
 **Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only).
-**Next:** PR I2 review by J · re-measure latency after a conda `faiss-cpu` install (FAISS is currently forced to a single thread — see the caveat in [e1_summary](experiments/e1_summary.md)) · E2 PCA on top of the chosen ivf nprobe 16 config · E1-scale corpus-size sweep · choose LLM for M9 (J) (see [guide.md](../agents/workflow/guide.md) milestones).
+**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · M8 `make_unanswerable` (shared) · M9 `rag.py` + LLM choice (J) · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 
@@ -43,7 +43,7 @@ accuracy against latency and memory, and when the system should refuse to answer
 
 | Exp | Owner | Summary page | Status |
 |---|---|---|---|
-| E1 retrieval method | H | [e1_summary](experiments/e1_summary.md) | grid complete on FiQA dev (6 runs); trade-off chosen: ivf nprobe 16 |
+| E1 retrieval method | H | [e1_summary](experiments/e1_summary.md) | grid complete on FiQA dev (6 runs + bonus); trade-off chosen: ivf nprobe 16 (2.82 pt for 6.7×); latency re-measured at natural thread counts |
 | E2 PCA | J | [e2_summary](experiments/e2_summary.md) | not started |
 | E3 reliability | J | [e3_summary](experiments/e3_summary.md) | not started |
 | Bonus K-means index | H | — | optional |

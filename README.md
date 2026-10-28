@@ -21,21 +21,32 @@ pytest -q                                            # unit tests (synthetic dat
 
 ### macOS: FAISS and PyTorch each ship their own OpenMP runtime
 
-On macOS, the PyPI builds of `torch` and `faiss-cpu` each bundle a copy of `libomp`. Importing both
-in one process and calling `index.search()` aborts the interpreter (`OMP: Error #15`, then a
-segmentation fault). This breaks `tests/test_retrieval.py` and any experiment that uses the FAISS
-back ends — the code itself is fine.
+On macOS the PyPI wheels of `torch` and `faiss-cpu` each bundle their own copy of `libomp`. Loading
+both into one process and calling `index.search()` aborts the interpreter with `OMP: Error #15`,
+followed by a segmentation fault. The code itself is fine.
 
 ```bash
-# quick workaround: one OpenMP thread avoids the duplicate-runtime abort (test_retrieval.py 6/6 pass)
+# workaround used for the grid runs: one OpenMP thread avoids the duplicate-runtime abort
 KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 pytest -q tests/test_retrieval.py
 KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 python scripts/run_experiment.py <config>.yaml
-
-# permanent fix: install FAISS from conda so both share conda's llvm-openmp
-conda install -c conda-forge faiss-cpu
 ```
 
-`TorchKNN` and `KMeansIndex` are pure PyTorch and unaffected.
+`OMP_NUM_THREADS=1` is the part that matters: `KMP_DUPLICATE_LIB_OK=TRUE` on its own lets the
+program start with both runtimes loaded, but it segfaults on the full 57,638-document FiQA corpus.
+
+Note that this caps FAISS at one thread, which is unfair to it. Installing `faiss-cpu` from
+conda-forge does **not** fix the clash: our `torch` keeps its own `libomp`
+(`site-packages/torch/lib/libomp.dylib`), so two runtimes would still be loaded. The clean fix is to
+measure each back end in a process that imports only the library it needs — no clash, and every
+library keeps its normal thread count:
+
+```bash
+python scripts/run_experiment.py experiments/configs/run_e1_001.yaml   # torch only, no env vars
+python scripts/bench_faiss_isolated.py --method flat                   # faiss only, no env vars
+python scripts/bench_faiss_isolated.py --method ivf --nlist 240 --nprobe 16
+```
+
+`TorchKNN` and `KMeansIndex` never import FAISS, so they are unaffected by any of this.
 
 ## Run
 
