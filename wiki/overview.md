@@ -3,7 +3,7 @@ title: "Project overview"
 type: overview
 tags: [cs541, rag, meta]
 created: 2026-10-11
-updated: 2026-10-25
+updated: 2026-10-28
 status: active
 ---
 
@@ -13,9 +13,9 @@ status: active
 
 ## Current status
 
-**Phase:** proposal finalized → setting up repo (Week 10 tasks).
-**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA on branch j/e2-pca (2026-10-25).
-**Next:** M4 TorchKNN (H) → I2 · merge I3 (PCA) · choose LLM for M9 (J) (see [guide.md](../agents/workflow/guide.md) milestones).
+**Phase:** proposal finalized → E1 experimentation (Week 10 tasks).
+**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only).
+**Next:** PR I2 review by J · re-measure latency after a conda `faiss-cpu` install (FAISS is currently forced to a single thread — see the caveat in [e1_summary](experiments/e1_summary.md)) · E2 PCA on top of the chosen ivf nprobe 16 config · E1-scale corpus-size sweep · choose LLM for M9 (J) (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 
@@ -43,7 +43,7 @@ accuracy against latency and memory, and when the system should refuse to answer
 
 | Exp | Owner | Summary page | Status |
 |---|---|---|---|
-| E1 retrieval method | H | [e1_summary](experiments/e1_summary.md) | not started |
+| E1 retrieval method | H | [e1_summary](experiments/e1_summary.md) | grid complete on FiQA dev (6 runs); trade-off chosen: ivf nprobe 16 |
 | E2 PCA | J | [e2_summary](experiments/e2_summary.md) | not started |
 | E3 reliability | J | [e3_summary](experiments/e3_summary.md) | not started |
 | Bonus K-means index | H | — | optional |
