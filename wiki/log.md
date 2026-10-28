@@ -2,6 +2,15 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-28] experiment | E2 grid complete on FiQA dev (runs 000-003)
+
+- torch_knn (exact), FiQA dev, 57,638 docs, 500 queries, k=10; PCA fit on corpus only
+- Recall@10: 384-d 0.4665 · 128-d 0.4412 (−2.54 pt) · 64-d 0.3671 (−9.94 pt) · 32-d 0.2686 (−19.79 pt)
+- p95 ms (J's machine): 2.567 / 0.975 / 0.663 / 0.464 → 2.6× / 3.9× / 5.5×; memory 84.43 / 28.14 / 14.07 / 7.04 MB
+- 384-d accuracy reproduces E1 run 001 exactly; latency ~3× H's because it is a different machine
+- Hypotheses: 001 rejected (narrowly), 002 rejected, 003 confirmed. Best trade-off: 128-d
+- Pages updated: experiments/e2_run_000..003.md (new), e2_summary.md, overview.md
+
 ## [2026-10-28] experiment | latency re-measured at natural thread counts (E1 caveat closed)
 
 - Root cause confirmed: three distinct `libomp` files on this machine (torch's own, conda's, and the

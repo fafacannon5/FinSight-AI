@@ -1,0 +1,13 @@
+# E2: PCA dimensionality with exact search (torch_knn), so any accuracy change is caused by PCA alone.
+run_id: "run_e2_001"
+experiment: e2
+hypothesis: "PCA to 128-d keeps Recall@10 within 1 point of 384-d while cutting index memory 3x"
+dataset: fiqa
+split: dev                  # tuning split; FiQA test stays locked
+method: torch_knn
+method_params: {}
+pca_dim: 128
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42
