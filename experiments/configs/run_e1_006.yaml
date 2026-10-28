@@ -1,0 +1,13 @@
+# E1 factor sweep: nprobe = 64 — how much accuracy is left to buy, and at what latency cost.
+run_id: "run_e1_006"
+experiment: e1
+hypothesis: "faiss_ivf with nprobe=64 is within 1 point of exact Recall@10, but its latency advantage shrinks towards exact search"
+dataset: fiqa
+split: dev
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 64}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

@@ -2,6 +2,50 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-28] experiment | latency re-measured at natural thread counts (E1 caveat closed)
+
+- Root cause confirmed: three distinct `libomp` files on this machine (torch's own, conda's, and the
+  one bundled in the faiss wheel) → `OMP: Error #15`. `KMP_DUPLICATE_LIB_OK=TRUE` alone lets the
+  process start but segfaults on the full 57,638-doc corpus, so `OMP_NUM_THREADS=1` is the part that
+  keeps runs stable — and it unfairly caps FAISS at one thread.
+- Installing `faiss-cpu` from conda-forge would NOT fix it (torch keeps its own libomp). Rejected
+  after checking `otool -L`; README's earlier "permanent fix" line retracted.
+- Fix: measure each back end in a process that imports only the library it needs. New
+  `scripts/bench_faiss_isolated.py` (numpy + faiss only, refuses to run if torch is already imported);
+  torch_knn measured by `run_experiment.py` with no env vars at all.
+- p95 ms, single thread → natural threads: torch_knn 0.7674 → 0.7645 · faiss_flat 1.2350 → 0.8285 ·
+  ivf nprobe 1/4/16/64 = 0.0153→0.0164 / 0.0356→0.0378 / 0.1065→0.1137 / 0.3659→0.3913
+- Conclusions unchanged except one: ivf nprobe 16 is 6.7× (not 7.2×); faiss_flat vs torch_knn is an
+  8% tie (not 1.6× slower). Accuracy numbers untouched. Noise floor ≈ ±10% on p95.
+- Pages updated: e1_summary.md (new caveat section + next hypothesis), e1_run_002.md, README.md
+
+## [2026-10-28] experiment | E1 grid complete on FiQA dev (runs 001-006 + bonus 001)
+
+- FiQA dev, 57,638 docs, 500 queries, dim 384, k=10, nlist=240 (≈√N); first FiQA download (~28 MB)
+  and corpus encoding (~64 s) after H's OK; caches written to `data/` (~88 MB, gitignored)
+- Recall@10: torch_knn 0.4665 (baseline) · faiss_flat 0.4665 (identical — correctness control passes) ·
+  ivf nprobe 1/4/16/64 = 0.2831 / 0.3734 / 0.4383 / 0.4665; bonus KMeansIndex 240/16 = 0.4435
+- p95 latency (ms): 0.7674 / 1.2350 / 0.0153 / 0.0356 / 0.1065 / 0.3659 / bonus 1.9781
+  → speed-ups vs baseline 0.62× / 50× / 21.5× / 7.2× / 2.1×; our KMeans 0.39×
+- Accuracy gaps vs exact: −18.35 / −9.32 / −2.82 / 0.00 pt; bonus −2.31 pt (and +0.52 pt vs faiss_ivf)
+- Chosen trade-off: ivf nprobe 16 (2.82 pt for 7.2×); nprobe 64 is already exact at 2.1×
+- Caveat recorded: all runs single-threaded (OMP_NUM_THREADS=1 workaround); faiss_flat being slower
+  than torch_knn is an artefact, latency needs a re-run on a conda faiss-cpu install
+- Pages updated: experiments/e1_run_001..006.md + bonus_run_001.md (new), e1_summary.md, overview.md
+
+## [2026-10-28] experiment | run_e1_000: SciFact smoke test passes (M5)
+
+- `python scripts/run_experiment.py experiments/configs/run_e1_000_scifact_smoke.yaml` →
+  `experiments/results/run_e1_000/metrics.json`
+- SciFact test, torch_knn, k=10: Recall@5 0.7379 · Recall@10 0.7833 · MRR@10 0.6047 · nDCG@10 0.6451;
+  n_docs 5183, n_queries 300, dim 384; latency mean 0.0283 ms / p95 0.0316 ms; memory 7.59 MB
+- All four M5 acceptance checks pass; random-ranking baseline 0.00218 → observed is 359× the baseline
+- First downloads on this machine, after H's OK: `datasets` was missing → installed; BeIR/scifact (~4.5 MB);
+  all-MiniLM-L6-v2 (~87 MB); embedding caches rebuilt in `data/` (~8.5 MB, gitignored)
+- Debug dataset only: SciFact numbers are never reported
+- Branch `h/e1-retrieval` pushed (451709a, 7cbce53, 3095f43); PR I2 still pending J's review
+- Pages updated: experiments/e1_run_000.md (new), experiments/e1_summary.md, overview.md
+
 ## [2026-10-25] milestone | M7 PCAReducer passes tests (branch j/e2-pca)
 
 - `tests/test_pca.py` 4/4 pass (incl. sklearn match up to sign)

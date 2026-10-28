@@ -1,0 +1,13 @@
+# E1 factor sweep: nprobe = 16 — the candidate "best trade-off" point.
+run_id: "run_e1_005"
+experiment: e1
+hypothesis: "faiss_ivf with nprobe=16 keeps Recall@10 within 2 points of exact search while cutting p95 latency by at least 3x"
+dataset: fiqa
+split: dev
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 16}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

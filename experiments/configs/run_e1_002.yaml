@@ -1,0 +1,13 @@
+# E1 control: FAISS exact index must agree with our TorchKNN; only latency should differ.
+run_id: "run_e1_002"
+experiment: e1
+hypothesis: "faiss_flat returns the same top-10 as torch_knn (Recall@10 identical) but is faster per query"
+dataset: fiqa
+split: dev
+method: faiss_flat
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

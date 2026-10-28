@@ -1,0 +1,13 @@
+# E1 factor sweep: nprobe = 4 (only nprobe changed vs. run_e1_003).
+run_id: "run_e1_004"
+experiment: e1
+hypothesis: "faiss_ivf with nprobe=4 recovers most of the accuracy loss (within 5 points of exact) at a fraction of the latency"
+dataset: fiqa
+split: dev
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 4}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

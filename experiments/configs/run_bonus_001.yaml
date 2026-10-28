@@ -1,0 +1,13 @@
+# Bonus: our own K-means index, matched to run_e1_005 (same 240 cells, same nprobe 16).
+run_id: "run_bonus_001"
+experiment: bonus
+hypothesis: "our PyTorch KMeansIndex reaches Recall@10 within 3 points of faiss_ivf at identical n_clusters/nprobe (240/16)"
+dataset: fiqa
+split: dev
+method: kmeans_index
+method_params: {n_clusters: 240, nprobe: 16}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

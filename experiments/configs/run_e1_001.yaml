@@ -1,0 +1,13 @@
+# E1 baseline: our own exact PyTorch KNN on the full FiQA corpus.
+run_id: "run_e1_001"
+experiment: e1
+hypothesis: "baseline — exact PyTorch KNN on FiQA dev; every later run is judged against this"
+dataset: fiqa
+split: dev                  # tuning split; FiQA test stays locked
+method: torch_knn
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42
