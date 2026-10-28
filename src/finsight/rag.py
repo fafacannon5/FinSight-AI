@@ -51,10 +51,16 @@ REASONING_EFFORT = "low"           # gpt-oss "thinks" before answering; low keep
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 
-def generate(prompt: str, model: str = LLM_MODEL, max_tokens: int = 512, max_retries: int = 3,
-             timeout_s: float = 60.0) -> str:
+def generate(prompt: str, **llm_kwargs) -> str:
     """Call the fixed LLM. Implementation depends on wiki/decisions/llm_choice.md (Colab model or API).
-    Read any API key from the environment (.env), never from code.
+    Read any API key from the environment (.env), never from code."""
+    return generate_with_usage(prompt, **llm_kwargs)[0]
+
+
+def generate_with_usage(prompt: str, model: str = LLM_MODEL, max_tokens: int = 512, max_retries: int = 3,
+                        timeout_s: float = 60.0) -> tuple[str, dict]:
+    """Same call as `generate`, but also returns Groq's `usage` dict (prompt / completion / total tokens),
+    so experiments can track the daily token budget.
 
     temperature = 0 so repeated calls give (nearly) the same answer. On HTTP 429 (rate limit) waits
     for the server's Retry-After and tries again, at most `max_retries` times.
@@ -81,5 +87,6 @@ def generate(prompt: str, model: str = LLM_MODEL, max_tokens: int = 512, max_ret
             time.sleep(float(resp.headers.get("retry-after", 2 ** attempt)))
             continue
         resp.raise_for_status()  # error message contains the URL and status, never the key
-        return resp.json()["choices"][0]["message"]["content"].strip()
+        body = resp.json()
+        return body["choices"][0]["message"]["content"].strip(), body.get("usage", {})
     raise RuntimeError("unreachable")

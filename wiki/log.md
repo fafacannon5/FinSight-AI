@@ -2,6 +2,21 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-28] experiment | E3 set-up: unanswerable set (M8) + generation run run_e3_gen_001
+
+- `scripts/e3_build_unanswerable.py --n 50`: 50 FiQA dev queries made unanswerable (116 docs removed, 57,522 left);
+  answerable Recall@10 0.4684 (unchanged); no removed doc retrieved
+- Top-1 similarity barely separates the groups: answerable median 0.652, unanswerable 0.635, AUC 0.558.
+  First review item shows why: other forum answers still answer the question (FiQA labels are incomplete).
+  Manual check (`experiments/results/e3_unanswerable/review.md`) pending — τ sweep waits for it
+- `scripts/e3_generate.py`: 20 answerable dev questions × k ∈ {1,3,5,10} = 80 calls to `openai/gpt-oss-120b`,
+  76,038 tokens total (budget 150K not reached); docs cut to 1,000 chars
+- Model refused 9 / 7 / 5 / 3 of 20 at k = 1 / 3 / 5 / 10; every non-refused answer cites a doc; no citation
+  points outside the docs it was given. Format quirks: some cite as 【id】 or [d<id>] (copied from the prompt's
+  `[d42]` example) — normalise before automatic checks
+- Scoring sheet `experiments/results/run_e3_gen_001/scoring.csv` (1–3 correctness / groundedness) pending
+- Pages updated: none yet (run pages after scoring)
+
 ## [2026-10-28] decision | LLM = Groq `openai/gpt-oss-120b` + M8/M9 implemented
 
 - Options compared (local small model / Colab / Gemini free / Groq free); J chose Groq → `decisions/llm_choice.md` (draft;
