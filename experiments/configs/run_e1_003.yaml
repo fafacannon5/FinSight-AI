@@ -1,0 +1,13 @@
+# E1 factor sweep: nprobe = 1 (search only the single nearest cell).
+run_id: "run_e1_003"
+experiment: e1
+hypothesis: "faiss_ivf with nprobe=1 loses more than 15 points of Recall@10 against exact search"
+dataset: fiqa
+split: dev
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 1}   # nlist ~ sqrt(57638) ~ 240
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42
