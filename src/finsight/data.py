@@ -78,7 +78,27 @@ def make_unanswerable(qrels: dict[str, dict[str, int]], corpus_ids: list[str], n
     # 1. rng = random.Random(seed); sample n qids from qrels (sorted first for determinism)
     # 2. removed = union of their relevant doc ids
     # 3. return the sampled qids and `removed`
-    raise NotImplementedError
+    #
+    # Only queries whose relevant docs are relevant to NO other query are eligible. Otherwise removing
+    # them would silently take answers away from queries that are supposed to stay answerable.
+    in_corpus = set(corpus_ids)
+    owners: dict[str, int] = {}  # doc id → how many queries list it as relevant
+    for q in qrels.values():
+        for d, r in q.items():
+            if r > 0:
+                owners[d] = owners.get(d, 0) + 1
+
+    def relevant(qid: str) -> set[str]:
+        return {d for d, r in qrels[qid].items() if r > 0 and d in in_corpus}
+
+    eligible = [q for q in sorted(qrels) if relevant(q) and all(owners[d] == 1 for d in relevant(q))]
+    if len(eligible) < n:
+        raise ValueError(f"only {len(eligible)} queries have exclusive relevant docs; asked for {n}")
+
+    rng = random.Random(seed)
+    qids = rng.sample(eligible, n)
+    removed = set().union(*(relevant(q) for q in qids))
+    return qids, removed
 
 
 __all__ = ["load_beir", "check_ids", "make_unanswerable"]

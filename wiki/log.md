@@ -2,6 +2,18 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-10-28] decision | LLM = Groq `openai/gpt-oss-120b` + M8/M9 implemented
+
+- Options compared (local small model / Colab / Gemini free / Groq free); J chose Groq → `decisions/llm_choice.md` (draft;
+  Free-plan limits still to be recorded by J after sign-up)
+- `make_unanswerable`: only picks queries whose relevant docs no other query needs (FiQA dev: all 500 qualify;
+  sanity run n=50 → 116 docs removed, 0 other dev queries affected). Manual top-5 check still to do.
+- `should_refuse`, `refusal_curve`, `build_prompt`, `generate` (Groq, temperature 0, retries on 429) implemented
+- `llama-3.3-70b-versatile` → 404 model_not_found for this key (docs stale); J picked `openai/gpt-oss-120b`
+- Smoke test: 200 in 0.43 s, cited [d42]; 238 tokens; key limits 1,000 requests/day, 8,000 tokens/min
+- Full suite: 33 passed; branch `j/e3-refusal`
+- Pages updated: decisions/llm_choice.md (new), overview.md
+
 ## [2026-10-28] experiment | latency re-measured at natural thread counts (E1 caveat closed)
 
 - Root cause confirmed: three distinct `libomp` files on this machine (torch's own, conda's, and the

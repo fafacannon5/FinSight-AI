@@ -15,7 +15,7 @@ status: active
 
 **Phase:** proposal finalized → E1 experimentation (Week 10 tasks).
 **Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only).
-**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · M8 `make_unanswerable` (shared) · M9 `rag.py` + LLM choice (J) · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
+**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · M8 manual check of the unanswerable set (shared) · E3 generation runs (J) · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 
@@ -36,7 +36,7 @@ accuracy against latency and memory, and when the system should refuse to answer
 | Encoder | `sentence-transformers/all-MiniLM-L6-v2`, 384-d, L2-normalized |
 | Similarity | inner product on unit vectors (= cosine) |
 | Retrieval unit | whole document (qrels are document-level); chunking only in the demo |
-| LLM | **TBD** → record in `decisions/llm_choice.md` |
+| LLM | Groq `openai/gpt-oss-120b`, temperature 0, reasoning effort low → [decisions/llm_choice.md](decisions/llm_choice.md) |
 | Seed | 42 |
 
 ## Experiments
