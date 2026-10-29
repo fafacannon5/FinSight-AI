@@ -1,0 +1,13 @@
+# E2: PCA dimensionality with exact search (torch_knn), so any accuracy change is caused by PCA alone.
+run_id: "run_e2_003"
+experiment: e2
+hypothesis: "PCA to 32-d loses more than 5 points of Recall@10 (only 45.6% of the variance is kept)"
+dataset: fiqa
+split: dev                  # tuning split; FiQA test stays locked
+method: torch_knn
+method_params: {}
+pca_dim: 32
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42
