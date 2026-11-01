@@ -2,6 +2,34 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-01] decision | Final configs A + B fixed (generation with A)
+
+- run_e2_005 (A, 384-d exact) vs run_e2_004 (B, 128-d PCA + IVF nprobe 16), same session, dev:
+  Recall@10 0.4665 vs 0.4178 (−4.88 pt), p95 2.700 vs 0.089 ms (30.2×), memory 84.43 vs 28.14 MB
+- E3 run 003: τ re-tuned for B = 0.66 (answer rate 0.609, correct refusal 0.90, AUC 0.826); A reproduced at τ 0.60
+- Generation on test with A only, k = 5, 100 questions; no test unanswerable set (dev-only refusal, a limitation);
+  prompt incl. `[d42]` unchanged; test configs `final_a.yaml`, `final_b.yaml` written
+- Pages updated: decisions/final_configs.md (new), experiments/e2_run_004.md (new), experiments/e3_run_003.md (new),
+  experiments/e3_summary.md, overview.md, index.md
+
+## [2026-11-01] experiment | E3 analysis: manual check (M8) + answer scores (run 001) + τ curve (run 002)
+
+- Manual check by J and H (joint): 10 OK · 40 DROP of 50 unanswerable candidates (other forum posts still answer most)
+- τ curve on 450 answerable vs. 10 verified: AUC 0.823 (vs. 0.558 on all 50 unverified); best balanced
+  τ = 0.60 → answer rate 0.760, correct-refusal rate 0.80
+- Answer quality (J+H consensus scores, answered rows only; refusals counted separately), k = 1/3/5/10:
+  correctness 2.364/2.462/2.533/2.647, groundedness 3.000/2.769/2.867/2.647, refusal rate 0.45/0.35/0.25/0.15
+  (refused-wrongly 0/2/2/2)
+- Scores are joint consensus (not independent double-scoring) → no Cohen's κ; rubric updated accordingly
+- Pages updated: dataset/unanswerable.md (new), experiments/e3_run_001.md (new), experiments/e3_run_002.md (new),
+  experiments/e3_summary.md, experiments/e3_rubric.md, overview.md, index.md
+
+## [2026-11-01] decision | E3 scoring rubric fixed
+
+- 1–3 scale for correctness (vs. labelled docs) and groundedness (vs. the k docs given); refusals left
+  unscored and marked `refused` / `refused-wrongly` in notes; J and H use the same rubric for the 30 double-scored answers
+- Pages updated: experiments/e3_rubric.md (new), experiments/e3_summary.md, index.md
+
 ## [2026-10-28] experiment | E2 grid complete on FiQA dev (runs 000-003)
 
 - torch_knn (exact), FiQA dev, 57,638 docs, 500 queries, k=10; PCA fit on corpus only
@@ -10,6 +38,33 @@
 - 384-d accuracy reproduces E1 run 001 exactly; latency ~3× H's because it is a different machine
 - Hypotheses: 001 rejected (narrowly), 002 rejected, 003 confirmed. Best trade-off: 128-d
 - Pages updated: experiments/e2_run_000..003.md (new), e2_summary.md, overview.md
+
+## [2026-10-28] experiment | E3 set-up: unanswerable set (M8) + generation run run_e3_gen_001
+
+- `scripts/e3_build_unanswerable.py --n 50`: 50 FiQA dev queries made unanswerable (116 docs removed, 57,522 left);
+  answerable Recall@10 0.4684 (unchanged); no removed doc retrieved
+- Top-1 similarity barely separates the groups: answerable median 0.652, unanswerable 0.635, AUC 0.558.
+  First review item shows why: other forum answers still answer the question (FiQA labels are incomplete).
+  Manual check (`experiments/results/e3_unanswerable/review.md`) pending — τ sweep waits for it
+- `scripts/e3_generate.py`: 20 answerable dev questions × k ∈ {1,3,5,10} = 80 calls to `openai/gpt-oss-120b`,
+  76,038 tokens total (budget 150K not reached); docs cut to 1,000 chars
+- Model refused 9 / 7 / 5 / 3 of 20 at k = 1 / 3 / 5 / 10; every non-refused answer cites a doc; no citation
+  points outside the docs it was given. Format quirks: some cite as 【id】 or [d<id>] (copied from the prompt's
+  `[d42]` example) — normalise before automatic checks
+- Scoring sheet `experiments/results/run_e3_gen_001/scoring.csv` (1–3 correctness / groundedness) pending
+- Pages updated: none yet (run pages after scoring)
+
+## [2026-10-28] decision | LLM = Groq `openai/gpt-oss-120b` + M8/M9 implemented
+
+- Options compared (local small model / Colab / Gemini free / Groq free); J chose Groq → `decisions/llm_choice.md` (draft;
+  Free-plan limits still to be recorded by J after sign-up)
+- `make_unanswerable`: only picks queries whose relevant docs no other query needs (FiQA dev: all 500 qualify;
+  sanity run n=50 → 116 docs removed, 0 other dev queries affected). Manual top-5 check still to do.
+- `should_refuse`, `refusal_curve`, `build_prompt`, `generate` (Groq, temperature 0, retries on 429) implemented
+- `llama-3.3-70b-versatile` → 404 model_not_found for this key (docs stale); J picked `openai/gpt-oss-120b`
+- Smoke test: 200 in 0.43 s, cited [d42]; 238 tokens; key limits 1,000 requests/day, 8,000 tokens/min
+- Full suite: 33 passed; branch `j/e3-refusal`
+- Pages updated: decisions/llm_choice.md (new), overview.md
 
 ## [2026-10-28] experiment | latency re-measured at natural thread counts (E1 caveat closed)
 

@@ -31,3 +31,12 @@ def test_check_ids_rejects_int_ids():
 def test_check_ids_rejects_qrels_doc_missing_from_corpus():
     with pytest.raises(ValueError, match="not found in corpus"):
         check_ids({"d1": "doc text"}, {"q1": "question"}, {"q1": {"d2": 1}})
+
+
+def test_never_picks_a_query_whose_docs_other_queries_need():
+    # q_shared and q_other both rely on d_shared: removing it would break q_other, so skip q_shared
+    qrels = {"q_shared": {"d_shared": 1}, "q_other": {"d_shared": 1, "d_x": 1}, "q_ok": {"d_ok": 1}}
+    qids, removed = make_unanswerable(qrels, ["d_shared", "d_x", "d_ok"], n=1, seed=42)
+    assert qids == ["q_ok"] and removed == {"d_ok"}
+    with pytest.raises(ValueError):
+        make_unanswerable(qrels, ["d_shared", "d_x", "d_ok"], n=2, seed=42)

@@ -3,7 +3,7 @@ title: "E2 — PCA dimensionality: summary"
 type: experiment
 tags: [e2]
 created: 2026-10-11
-updated: 2026-10-28
+updated: 2026-11-01
 status: active
 owner: J
 ---
@@ -31,6 +31,7 @@ so any accuracy change is caused by PCA alone (decision: J, to keep E2 separate 
 | [001](e2_run_001.md) | PCA to 128-d keeps Recall@10 within 1 point of 384-d while cutting index memory 3x | 0.4412 (-2.54 pt) | 0.3586 | 0.975 | 28.14 | Rejected (narrowly) |
 | [002](e2_run_002.md) | PCA to 64-d keeps Recall@10 within 3 points of 384-d while cutting index memory 6x | 0.3671 (-9.94 pt) | 0.2937 | 0.663 | 14.07 | Rejected |
 | [003](e2_run_003.md) | PCA to 32-d loses more than 5 points of Recall@10 (only 45.6% of the variance is kept) | 0.2686 (-19.79 pt) | 0.2079 | 0.464 | 7.04 | Confirmed |
+| [004](e2_run_004.md) | 128-d + IVF nprobe 16 (final config B) loses ≤ ~5.5 pt; run 005 = 384-d exact in the same session | 0.4178 (-4.88 pt vs 0.4665) | 0.3388 | 0.089 (vs 2.700) | 28.14 | Confirmed |
 
 ## Findings
 

@@ -10,4 +10,5 @@ matplotlib>=3.7
 pytest>=7.4
 streamlit>=1.35
 jupyter>=1.0
-python-dotenv>=1.0     # reads .env (API keys) if an API LLM is chosen
+python-dotenv>=1.0     # reads .env (GROQ_API_KEY)
+requests>=2.31         # Groq API calls in rag.generate

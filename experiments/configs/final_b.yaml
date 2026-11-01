@@ -1,0 +1,14 @@
+# FINAL config B (wiki/decisions/final_configs.md): 128-d PCA + faiss_ivf nprobe 16. LOCKED TEST SPLIT — run once,
+# with --final, only when a member explicitly asks for the final evaluation. Same settings as run_e2_004 (dev).
+run_id: "final_b"
+experiment: final
+hypothesis: "config B on test: ~5 pt below A on Recall@10 at ~30x lower p95 latency and 3x less memory (dev: -4.88 pt)"
+dataset: fiqa
+split: test
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 16}
+pca_dim: 128
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42
