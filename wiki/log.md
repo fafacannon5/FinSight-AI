@@ -2,6 +2,12 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-01] decision | E3 scoring rubric fixed
+
+- 1–3 scale for correctness (vs. labelled docs) and groundedness (vs. the k docs given); refusals left
+  unscored and marked `refused` / `refused-wrongly` in notes; J and H use the same rubric for the 30 double-scored answers
+- Pages updated: experiments/e3_rubric.md (new), experiments/e3_summary.md, index.md
+
 ## [2026-10-28] experiment | E3 set-up: unanswerable set (M8) + generation run run_e3_gen_001
 
 - `scripts/e3_build_unanswerable.py --n 50`: 50 FiQA dev queries made unanswerable (116 docs removed, 57,522 left);
