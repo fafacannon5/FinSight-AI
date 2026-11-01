@@ -1,0 +1,13 @@
+# Final config A on dev: 384-d exact torch_knn, re-run in the same session as run_e2_004 so latency is comparable.
+run_id: "run_e2_005"
+experiment: e2
+hypothesis: "baseline for config B — exact torch_knn at 384-d, same session as run_e2_004"
+dataset: fiqa
+split: dev                  # tuning split; FiQA test stays locked
+method: torch_knn
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

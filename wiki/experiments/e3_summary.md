@@ -17,13 +17,15 @@ Answers are scored with the [scoring rubric](e3_rubric.md). Unanswerable questio
 | Setting | Value | Evidence | Run |
 |---|---|---|---|
 | top-k for generation | **k = 5** (correctness 2.53, groundedness 2.87, refusal rate 0.25) | 20 questions, J+H consensus | [run 001](e3_run_001.md) |
-| refusal threshold | **τ = 0.60** on top-1 cosine (answer rate 0.76, correct refusal 0.80) | 450 answerable / 10 verified unanswerable | [run 002](e3_run_002.md) |
+| refusal threshold, config A (384-d exact) | **τ = 0.60** on top-1 cosine (answer rate 0.76, correct refusal 0.80) | 450 answerable / 10 verified unanswerable | [run 002](e3_run_002.md) |
+| refusal threshold, config B (128-d + IVF 16) | **τ = 0.66** (answer rate 0.61, correct refusal 0.90) | same | [run 003](e3_run_003.md) |
 
 ## Run history
 | Run | Hypothesis | Key metric | Verdict |
 |---|---|---|---|
 | [001](e3_run_001.md) | larger k → more correct, less grounded | correctness 2.36 → 2.65, groundedness 3.00 → 2.65 (k 1 → 10) | confirmed (small n) |
 | [002](e3_run_002.md) | top-1 cosine separates unanswerable questions | AUC 0.82 (verified) vs. 0.56 (unverified) | confirmed, τ = 0.60 |
+| [003](e3_run_003.md) | PCA shifts cosines, so config B needs its own τ | B: AUC 0.826, τ 0.66 | confirmed |
 
 ## Findings so far
 
@@ -33,4 +35,4 @@ Answers are scored with the [scoring rubric](e3_rubric.md). Unanswerable questio
 
 ## Open
 
-- Fix k and τ in `wiki/decisions/final_configs.md` before the final test evaluation.
+- k and τ fixed in [final_configs](../decisions/final_configs.md). Open: test unanswerable set, generation sample size.

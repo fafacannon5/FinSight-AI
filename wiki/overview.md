@@ -14,8 +14,8 @@ status: active
 ## Current status
 
 **Phase:** proposal finalized → E1 experimentation (Week 10 tasks).
-**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only); M8 manual check + E3 dev analysis 2026-11-01 (10 verified unanswerable; k = 5, τ = 0.60).
-**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · `decisions/final_configs.md` · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
+**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only); M8 manual check + E3 dev analysis 2026-11-01 (10 verified unanswerable; k = 5, τ = 0.60); final configs A + B fixed 2026-11-01.
+**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · final test evaluation (configs fixed in [final_configs](decisions/final_configs.md)) · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 

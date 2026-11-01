@@ -1,0 +1,13 @@
+# Final config B on dev: PCA 128-d + FAISS IVF nprobe 16 (E2 x E1 combination), before the locked test run.
+run_id: "run_e2_004"
+experiment: e2
+hypothesis: "128-d PCA + ivf nprobe 16 loses at most ~5.5 points of Recall@10 (E1 -2.82 + E2 -2.54) and is the fastest, smallest config"
+dataset: fiqa
+split: dev                  # tuning split; FiQA test stays locked
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 16}
+pca_dim: 128
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42
