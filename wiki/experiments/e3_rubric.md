@@ -11,7 +11,8 @@ owner: J
 # E3 — Answer scoring rubric
 
 Used for every manual score in E3 (`scoring.csv` of `run_e3_gen_*` on dev, and later the final test run).
-J and H use **this same rubric**; otherwise the 30 double-scored answers say nothing about agreement.
+J and H use **this same rubric**. run_e3_gen_001 was scored jointly (one consensus score per row), so no
+agreement statistic exists for it; independent double-scoring would be needed for Cohen's κ.
 
 ## Two independent scores
 
@@ -40,12 +41,12 @@ off-topic docs. Watching both shows which one improves as k grows.
 - **`relevant_in_top_k` is empty** (no labelled doc in the first k): correctness is often low, but FiQA's
   labels are incomplete — judge the content; an unlabelled doc may still answer correctly.
 - **Citation format** (`[id]`, `【id】`, `[d<id>]`): all count as the same citation; format is not scored.
-- `scorer` = `J` or `H`. One row per scorer; for double-scored answers, copy the row and fill it in again.
+- `scorer` = `J`, `H`, or `J+H` for a joint consensus score. For independent double-scoring, copy the row and fill it in again.
 
 ## Analysis (after scoring)
 
 Per k: mean correctness, mean groundedness (non-refused answers only), refusal rate.
-Agreement on the 30 double-scored answers: exact-match rate and Cohen's κ per column.
+Agreement (only if scored independently): exact-match rate and Cohen's κ per column.
 
 ## Related
 

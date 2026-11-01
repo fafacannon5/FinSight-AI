@@ -2,6 +2,18 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-01] experiment | E3 analysis: manual check (M8) + answer scores (run 001) + τ curve (run 002)
+
+- Manual check by J and H (joint): 10 OK · 40 DROP of 50 unanswerable candidates (other forum posts still answer most)
+- τ curve on 450 answerable vs. 10 verified: AUC 0.823 (vs. 0.558 on all 50 unverified); best balanced
+  τ = 0.60 → answer rate 0.760, correct-refusal rate 0.80
+- Answer quality (J+H consensus scores, answered rows only; refusals counted separately), k = 1/3/5/10:
+  correctness 2.364/2.462/2.533/2.647, groundedness 3.000/2.769/2.867/2.647, refusal rate 0.45/0.35/0.25/0.15
+  (refused-wrongly 0/2/2/2)
+- Scores are joint consensus (not independent double-scoring) → no Cohen's κ; rubric updated accordingly
+- Pages updated: dataset/unanswerable.md (new), experiments/e3_run_001.md (new), experiments/e3_run_002.md (new),
+  experiments/e3_summary.md, experiments/e3_rubric.md, overview.md, index.md
+
 ## [2026-11-01] decision | E3 scoring rubric fixed
 
 - 1–3 scale for correctness (vs. labelled docs) and groundedness (vs. the k docs given); refusals left

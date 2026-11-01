@@ -14,8 +14,8 @@ status: active
 ## Current status
 
 **Phase:** proposal finalized → E1 experimentation (Week 10 tasks).
-**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only).
-**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · M8 manual check of the unanswerable set (shared) · E3 generation runs (J) · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
+**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex pushed on `h/e1-retrieval` (PR I2, pending J's review); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only); M8 manual check + E3 dev analysis 2026-11-01 (10 verified unanswerable; k = 5, τ = 0.60).
+**Next:** PR I2 (PR #3) review by J · E2 PCA on top of the chosen ivf nprobe 16 config (J) · E1 corpus-size sweep 10k/25k/57,638 (H) · `decisions/final_configs.md` · Streamlit demo · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
 
 ## Problem
 
@@ -45,14 +45,14 @@ accuracy against latency and memory, and when the system should refuse to answer
 |---|---|---|---|
 | E1 retrieval method | H | [e1_summary](experiments/e1_summary.md) | grid complete on FiQA dev (6 runs + bonus); trade-off chosen: ivf nprobe 16 (2.82 pt for 6.7×); latency re-measured at natural thread counts |
 | E2 PCA | J | [e2_summary](experiments/e2_summary.md) | not started |
-| E3 reliability | J | [e3_summary](experiments/e3_summary.md) | not started |
+| E3 reliability | J | [e3_summary](experiments/e3_summary.md) | dev done: k = 5, τ = 0.60 |
 | Bonus K-means index | H | — | optional |
 
 ## Metrics
 
 Retrieval: Recall@5, Recall@10, MRR@10, nDCG@10 · Efficiency: mean / p95 latency (ms, single query, warm-up
 excluded, mean of 3 runs), index build time, index memory (MB) · Generation (~100 test questions): 1–3 rubric
-for correctness + groundedness, 30 double-scored by both members · Refusal: answer rate, correct-refusal rate vs. τ.
+for correctness + groundedness, 30 double-scored by both members (dev run 001: joint J+H consensus instead, so no κ) · Refusal: answer rate, correct-refusal rate vs. τ.
 
 ## Open questions
 
