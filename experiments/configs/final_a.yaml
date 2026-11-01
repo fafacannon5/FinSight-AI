@@ -1,0 +1,14 @@
+# FINAL config A (wiki/decisions/final_configs.md): 384-d exact torch_knn. LOCKED TEST SPLIT — run once, with --final,
+# only when a member explicitly asks for the final evaluation. Same settings as run_e2_005 (dev).
+run_id: "final_a"
+experiment: final
+hypothesis: "config A on test: reference accuracy (dev Recall@10 0.4665)"
+dataset: fiqa
+split: test
+method: torch_knn
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: null
+latency_queries: 200
+random_seed: 42

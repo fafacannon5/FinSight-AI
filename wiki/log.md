@@ -7,7 +7,8 @@
 - run_e2_005 (A, 384-d exact) vs run_e2_004 (B, 128-d PCA + IVF nprobe 16), same session, dev:
   Recall@10 0.4665 vs 0.4178 (−4.88 pt), p95 2.700 vs 0.089 ms (30.2×), memory 84.43 vs 28.14 MB
 - E3 run 003: τ re-tuned for B = 0.66 (answer rate 0.609, correct refusal 0.90, AUC 0.826); A reproduced at τ 0.60
-- Generation on test with A only, k = 5. Open: test unanswerable set, generation sample size, keep `[d42]` prompt
+- Generation on test with A only, k = 5, 100 questions; no test unanswerable set (dev-only refusal, a limitation);
+  prompt incl. `[d42]` unchanged; test configs `final_a.yaml`, `final_b.yaml` written
 - Pages updated: decisions/final_configs.md (new), experiments/e2_run_004.md (new), experiments/e3_run_003.md (new),
   experiments/e3_summary.md, overview.md, index.md
 

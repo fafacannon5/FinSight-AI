@@ -35,4 +35,4 @@ Answers are scored with the [scoring rubric](e3_rubric.md). Unanswerable questio
 
 ## Open
 
-- k and τ fixed in [final_configs](../decisions/final_configs.md). Open: test unanswerable set, generation sample size.
+- k and τ fixed in [final_configs](../decisions/final_configs.md). Test: 100 questions, generation with A; refusal correctness from dev only.

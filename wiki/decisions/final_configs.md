@@ -41,17 +41,17 @@ Evidence: [E1 summary](../experiments/e1_summary.md) · [E2 run 004/005](../expe
 ## Test protocol
 
 1. Retrieval, both configs: `python scripts/run_experiment.py <cfg> --final` on all 648 test queries
-   (configs `experiments/configs/final_a.yaml`, `final_b.yaml` — to write, copying run_e2_005 / run_e2_004
-   with `split: test`).
-2. Generation, config A only: a fixed sample of test questions (seed 42; size to agree, proposal: ~100),
+   (configs `experiments/configs/final_a.yaml`, `final_b.yaml` = run_e2_005 / run_e2_004 with `split: test`).
+2. Generation, config A only: **100** test questions sampled with seed 42 (≈ 100K tokens),
    k = 5, scored with the [rubric](../experiments/e3_rubric.md); refusals counted separately.
-3. Refusal: apply τ = 0.60 (A) / 0.66 (B) unchanged. A test unanswerable set needs the same
-   `make_unanswerable` + manual check as on dev — **open: decide whether to build it.**
+3. Refusal: apply τ = 0.60 (A) / 0.66 (B) unchanged and report the answer rate on test.
+   **No test unanswerable set** (J and H, 2026-11-01): it would need another 50-question manual check for
+   ~10 usable questions. Correct-refusal rate is reported from dev only — stated as a limitation.
 4. No re-tuning after any test number is seen; problems go to the report as limitations.
 
 ## Consequences
 
-- **Proposed, to confirm:** the prompt example `[d42]` stays as is: changing the prompt now would invalidate the dev k choice.
+- The prompt (incl. the `[d42]` example) stays unchanged (J and H, 2026-11-01): changing it now would invalidate the dev k choice.
   Citation-format quirks (`【id】`, `[d<id>]`) are normalized at scoring time.
 - Hosted LLM: record model id + date per answer (already done by `e3_generate.py`).
 - The Streamlit demo uses config A with k = 5 and τ = 0.60.
