@@ -2,6 +2,16 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-01] milestone | M11 Streamlit demo (branch `j/m11-demo`)
+
+- `app/streamlit_app.py`: final config A (384-d exact TorchKNN, full 57,638-doc corpus, k = 5, τ = 0.60), refusal
+  before the LLM call, answer + cited docs marked ✅, sliders for k / τ flagged as "exploration only"
+- `rag.cited_ids` parses [id], 【id】, [d<id>] (+ 2 tests); full suite 35 passed
+- Checked in the browser: gold question (top-1 0.747) answered with 2 correct citations, 752 tokens, 0.7 s;
+  World Cup (0.279) and sourdough (0.448) refused without an LLM call
+- Encoder pinned to CPU: on Apple MPS each query cost ~0.7 s inside Streamlit; on CPU encode 14 ms, search 2.7 ms
+- Pages updated: overview.md
+
 ## [2026-11-01] decision | Final configs A + B fixed (generation with A)
 
 - run_e2_005 (A, 384-d exact) vs run_e2_004 (B, 128-d PCA + IVF nprobe 16), same session, dev:

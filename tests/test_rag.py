@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from finsight.rag import build_prompt, refusal_curve, should_refuse
+from finsight.rag import build_prompt, cited_ids, refusal_curve, should_refuse
 
 
 def test_should_refuse_threshold():
@@ -71,3 +71,13 @@ def test_generate_retries_after_rate_limit(monkeypatch):
     monkeypatch.setenv("GROQ_API_KEY", "test-key-not-real")
     monkeypatch.setattr(requests, "post", lambda *a, **k: next(replies))
     assert rag.generate("q") == "ok"
+
+
+def test_cited_ids_accepts_all_formats_seen_on_dev():
+    docs = ["36251", "583337", "113018", "42"]
+    answer = "A [36251]. B 【583337】. C 【d113018】 and [d42]. Again [36251]."
+    assert cited_ids(answer, docs) == ["36251", "583337", "113018", "42"]
+
+
+def test_cited_ids_ignores_ids_not_given_and_splits_groups():
+    assert cited_ids("x [1, 2] y [999] z (3)", ["1", "2", "3"]) == ["1", "2"]

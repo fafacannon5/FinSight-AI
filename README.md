@@ -55,6 +55,9 @@ python scripts/run_experiment.py experiments/configs/run_e1_000_scifact_smoke.ya
 streamlit run app/streamlit_app.py                                                   # demo
 ```
 
+The demo needs `data/fiqa_corpus_minilm.npy` (created by any FiQA run above) and `GROQ_API_KEY` in a
+repo-root `.env` (never committed). Without the key, retrieval and refusals still work; answering shows an error.
+
 ## Layout
 
 `src/finsight/` library · `tests/` unit tests · `scripts/` experiment runner · `notebooks/` analysis & figures ·
