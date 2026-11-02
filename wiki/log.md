@@ -2,6 +2,14 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-02] code | M12 test generation script written (not run)
+
+- `scripts/final_generate.py`: config A, full corpus, k = 5, τ = 0.60, 100 test questions (seed 42); refuses to run
+  without `--final` (exit 2) and never overwrites a finished `final_gen_a` run (exit 4)
+- All 100 questions go to the LLM; `refused_by_tau` marks the τ decision, so both dev-comparable answer quality
+  and the system result (refuse first) can be reported
+- `tests/test_test_lock.py`: test lock checked for `final_generate.py` and `run_experiment.py final_a.yaml`
+
 ## [2026-11-01] decision | Final configs A + B fixed (generation with A)
 
 - run_e2_005 (A, 384-d exact) vs run_e2_004 (B, 128-d PCA + IVF nprobe 16), same session, dev:
