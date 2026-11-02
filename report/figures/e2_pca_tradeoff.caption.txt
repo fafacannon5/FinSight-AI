@@ -1,0 +1,1 @@
+E2, FiQA dev, exact search. (a) Recall@10 and nDCG@10 vs. PCA dimension. (b) Recall@10 vs. p95 search latency; 128-d loses 2.54 points of Recall@10 for a 2.6x speed-up and 3x less memory.

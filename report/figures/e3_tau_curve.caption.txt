@@ -1,0 +1,1 @@
+Refusal threshold grid search on FiQA dev (450 answerable, 10 verified unanswerable questions). The vertical line marks the τ with the highest balanced accuracy: 0.60 for config A, 0.66 for config B. Correct-refusal rate moves in steps of 10% because only 10 unanswerable questions exist.

@@ -2,6 +2,15 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-02] report | E2 + E3 report figures and tables (dev only)
+
+- `notebooks/03_e2_pca.ipynb` → figures `e2_variance`, `e2_pca_tradeoff`; tables `e2_pca.md`, `final_configs_dev.md`
+- `notebooks/04_e3_reliability.ipynb` → figures `e3_top1_distribution`, `e3_tau_curve`, `e3_quality_vs_k`;
+  tables `e3_tau.md`, `e3_quality_k.md`
+- All figures PDF + 300-dpi PNG + caption file (`report/figures/`); style in `src/finsight/report.py`
+- Decision (J, 2026-11-02): on test, all 100 questions go to the LLM; `refused_by_tau` marks the τ decision
+- Open: `02_e1` (H, E1 results on H's machine), `01_data`, `05_final_test_results` (after the test run)
+
 ## [2026-11-02] code | M12 test generation script written (not run)
 
 - `scripts/final_generate.py`: config A, full corpus, k = 5, τ = 0.60, 100 test questions (seed 42); refuses to run

@@ -1,0 +1,1 @@
+Cumulative explained variance of PCA fitted on the 57,638 FiQA corpus embeddings (MiniLM-L6-v2, 384-d). 128 components keep 79.5% of the variance; 32 keep 45.6%.
