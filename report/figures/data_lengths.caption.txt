@@ -1,0 +1,1 @@
+Length of FiQA texts in MiniLM word pieces. (a) The 57,638 corpus posts; the dotted line is the encoder's 256-piece limit — 19% of posts are truncated before encoding. (b) The 500 dev questions (median 15 pieces), all far below the limit.

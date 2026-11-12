@@ -2,6 +2,14 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] report | Notebook 01: data statistics and embedding cache check
+
+- FiQA 57,638 posts; train / dev / test 5,500 / 500 / 648 questions; 2.5 relevant posts per question (median 2)
+- Posts median 120 MiniLM word pieces; 19.2% exceed the 256 limit and are truncated (limitation); dev questions median 15
+- Embedding cache 57,638 × 384 float32, 84.4 MB, all norms 1.0, ids == sorted(corpus), fresh re-encoding of 5 docs cosine 1.0
+- `notebooks/01_data_and_embeddings.ipynb` → figure `data_lengths`, table `data_fiqa.md`
+- Pages updated: dataset/fiqa.md, overview.md
+
 ## [2026-11-11] experiment | M12 test answers scored; notebook 05 (final figures and tables)
 
 - 100 test answers scored 1–3 by J and H together, ChatGPT as a helper (disclosed in AI_USAGE.md)
