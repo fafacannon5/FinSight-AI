@@ -2,6 +2,12 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] report | Slides + 10-min script draft (Claude, at J's request)
+
+- `report/FinSight-AI_slides.pptx`: 13 slides (intro, data, pipeline, evaluation, E1, E2, E3, test retrieval, test generation, demo, limitations + AI, conclusion); speaker notes = script
+- `report/presentation_script.md`: same script, speaker J/H and time per slide (~1,170 words ≈ 9–10 min)
+- Open: J + H rewrite script, insert demo screen recording on slide 11, rehearse, record
+
 ## [2026-11-11] report | Final report full draft (Claude, at J's request)
 
 - `report/final_report.tex`: all 6 sections written in English from the wiki and `report/tables/*`; one `\todo` left (lecturer)
