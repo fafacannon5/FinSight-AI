@@ -2,6 +2,23 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] report | Final report full draft (Claude, at J's request)
+
+- `report/final_report.tex`: all 6 sections written in English from the wiki and `report/tables/*`; one `\todo` left (lecturer)
+- New `report/tables/e1_methods.tex`, typed from `e1_summary.md` (natural-thread p95; E1 results are on H's machine)
+- Section 6 (AI teammate) is a draft of J and H's own judgement — they must rewrite or confirm it; disclosed in `AI_USAGE.md`
+- Open: J + H review every sentence; optional E1 corpus-size sweep (H); compile in Overleaf; slides
+
+## [2026-11-11] report | Final report skeleton on the course Overleaf template; LaTeX tables
+
+- `report/final_report.tex`: template preamble + `\lecture` header + the 6 required sections, with talking points
+  (`% KEY:`) and `\todo{}` placeholders for J and H's own text; all figures and tables wired in
+- `finsight.report.latex_table` / `save_table` now also write `report/tables/*.tex` (escapes τ, Δ, ×, _ …);
+  notebooks 01, 03, 04, 05 re-run → 7 `.tex` tables
+- The Overleaf project shown by J held another project's text (DNN on a health survey); only the template
+  structure is reused. Template header still says CS 583 → change preamble.tex to CS 541
+- Open: E1 section (H, notebook 02), section 6 written by J + H, slides
+
 ## [2026-11-11] report | Notebook 01: data statistics and embedding cache check
 
 - FiQA 57,638 posts; train / dev / test 5,500 / 500 / 648 questions; 2.5 relevant posts per question (median 2)

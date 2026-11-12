@@ -1,0 +1,13 @@
+\begin{tabular}{llllll}
+\hline
+Method & Recall@10 & $\Delta$ vs exact (pt) & nDCG@10 & p95 (ms) & Speed-up \\
+\hline
+TorchKNN (ours, exact) & 0.4665 & +0.00 & 0.3881 & 0.765 & 1.0$\times$ \\
+FAISS Flat (exact) & 0.4665 & +0.00 & 0.3881 & 0.829 & 0.9$\times$ \\
+FAISS IVF, nprobe 1 & 0.2831 & -18.35 & 0.2387 & 0.016 & 46.6$\times$ \\
+FAISS IVF, nprobe 4 & 0.3734 & -9.32 & 0.3063 & 0.038 & 20.2$\times$ \\
+FAISS IVF, nprobe 16 & 0.4383 & -2.82 & 0.3631 & 0.114 & 6.7$\times$ \\
+FAISS IVF, nprobe 64 & 0.4665 & +0.00 & 0.3882 & 0.391 & 2.0$\times$ \\
+K-means index (ours), nprobe 16 & 0.4435 & -2.30 & 0.3674 & 1.978$^{*}$ & 0.4$\times$ \\
+\hline
+\end{tabular}

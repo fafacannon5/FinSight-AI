@@ -1,4 +1,4 @@
-"""Report export helpers: one look for every figure, and Markdown tables (notebooks/03–05).
+"""Report export helpers: one look for every figure, and Markdown + LaTeX tables (notebooks/01–05).
 
 Colors: the first three slots of a colorblind-checked categorical palette (blue, orange, aqua). Aqua is
 below 3:1 contrast on white, so every series also gets a direct label or a distinct marker / line style.
@@ -45,10 +45,31 @@ def markdown_table(rows: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
+# pdflatex with \usepackage[utf8]{inputenc} cannot typeset these characters directly
+_TEX_ESCAPES = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
+                "{": r"\{", "}": r"\}", "τ": r"$\tau$", "Δ": r"$\Delta$", "×": r"$\times$", "·": r"$\cdot$",
+                "−": r"$-$", "≈": r"$\approx$", "≥": r"$\geq$", "…": r"\ldots{}", "—": "---", "–": "--"}
+
+
+def tex_escape(text: str) -> str:
+    return "".join(_TEX_ESCAPES.get(ch, ch) for ch in text)
+
+
+def latex_table(rows: list[dict]) -> str:
+    """[{col: value, ...}, ...] → bare tabular for \\input{} (no float, so the report sets caption / size)."""
+    cols = list(rows[0])
+    row = lambda cells: " & ".join(tex_escape(str(c)) for c in cells) + r" \\"
+    lines = [r"\begin{tabular}{" + "l" * len(cols) + "}", r"\hline", row(cols), r"\hline"]
+    lines += [row(r[c] for c in cols) for r in rows]
+    lines += [r"\hline", r"\end{tabular}"]
+    return "\n".join(lines) + "\n"
+
+
 def save_table(rows: list[dict], name: str, out_dir: str | Path = TABLES) -> str:
-    """Write <name>.md and return the Markdown text (so the notebook can display it)."""
+    """Write <name>.md and <name>.tex; return the Markdown text (so the notebook can display it)."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     text = markdown_table(rows)
     (out / f"{name}.md").write_text(text)
+    (out / f"{name}.tex").write_text(latex_table(rows))
     return text
