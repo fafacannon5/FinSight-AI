@@ -1,0 +1,13 @@
+# E1-scale: FAISS IVF at 25k docs, nlist 240 fixed for cross-size comparability (see run_e1s_002).
+run_id: "run_e1s_004"
+experiment: e1-scale
+hypothesis: "IVF's speed-up over exact search grows with corpus size (sublinear probe vs full scan)"
+dataset: fiqa
+split: dev
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 16}
+pca_dim: null
+k: 10
+corpus_size: 25000
+latency_queries: 200
+random_seed: 42

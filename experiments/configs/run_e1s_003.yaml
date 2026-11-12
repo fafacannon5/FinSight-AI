@@ -1,0 +1,14 @@
+# E1-scale: exact torch_knn baseline at 25k docs, same latency protocol (OMP_NUM_THREADS=1)
+# as run_e1s_001 and the 57,638-doc reference point (run_e1_001).
+run_id: "run_e1s_003"
+experiment: e1-scale
+hypothesis: "IVF's speed-up over exact search grows with corpus size (sublinear probe vs full scan)"
+dataset: fiqa
+split: dev
+method: torch_knn
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: 25000
+latency_queries: 200
+random_seed: 42

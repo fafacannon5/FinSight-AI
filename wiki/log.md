@@ -2,6 +2,19 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-12] experiment | E1-scale: corpus size sweep 10k / 25k / 57,638 (runs e1s_001–004)
+
+- Owner H. `nlist = 240` fixed across sizes (probe fraction 6.7 % constant), all relevant docs kept in
+  every subsample, seed 42, OMP_NUM_THREADS = 1 protocol
+- p95 speed-up torch→ivf16: **3.40× (10k) → 6.49× (25k) → 7.18× (57k)** — confirmed but sub-linear,
+  approaching the 240/16 ≈ 15× probe-ratio bound (fixed heap/bandwidth costs)
+- IVF accuracy loss stable across N: −2.83 / −2.48 / −2.82 pt → the dev choice of nprobe 16 is
+  corpus-size-independent
+- R@10 falls with N for both methods (0.63 → 0.54 → 0.47) = added distractors in the subsample, not
+  degradation
+- Fills the gap J left at `final_report.tex:221`; figure + notebook 02 to follow
+- Pages updated: experiments/e1_scale.md (new), experiments/e1_summary.md, this log
+
 ## [2026-11-11] report | J + H rewrite of RQ answers and Section 6; slides synced
 
 - RQ answers (new subsection 5.5) written by J + H; all numbers checked against the tables, none changed

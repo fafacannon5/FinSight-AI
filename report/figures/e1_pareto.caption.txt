@@ -1,0 +1,1 @@
+FiQA dev grid, 57,638 docs. Exact search trades speed; IVF's knee sits at nprobe 16, losing 2.82 points of Recall@10 for a 6.7x speed-up, while our K-means index matchesIVF accuracy at 17x the cost.
