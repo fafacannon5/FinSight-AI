@@ -1,0 +1,421 @@
+% CS 541 final report, on the course Overleaf template (same preamble, \lecture header, 6 sections).
+% Overleaf layout: this file + preamble.tex (from the template) + images/ (upload report/figures/*.pdf)
+%                  + tables/ (upload report/tables/*.tex).
+% Numbers come from report/tables/*.tex and wiki/experiments/* (E1: wiki/experiments/e1_summary.md, because the
+% E1 result files are on H's machine). Prose drafted by Claude from those sources at J's request; J and H must
+% read, edit and be able to explain every sentence (disclosed in Section 6 and AI_USAGE.md).
+
+\documentclass[11pt]{article}
+\newtheorem{define}{Definition}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{pythonhighlight}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage[linesnumbered,ruled,vlined, noline]{algorithm2e}
+
+\SetKwInput{KwInput}{Input}
+\SetKwInput{KwOutput}{Output}
+
+\oddsidemargin=0.15in
+\evensidemargin=0.15in
+\topmargin=-.5in
+\textheight=9in
+\textwidth=6.25in
+\usepackage[utf8]{inputenc}
+
+\newcommand{\todo}[1]{\textbf{[TODO: #1]}}   % delete this line once every \todo is gone
+
+\begin{document}
+\input{preamble.tex}
+
+% preamble.tex of the template still prints "CS 583 --- Deep Learning": change it to "CS 541 --- Artificial Intelligence".
+% Arguments: {title}{date}{lecturer}{"By:" field}
+\lecture{Design and Evaluation of a RAG Chatbot: Accuracy--Efficiency Trade-offs in Retrieval}{November 2026}
+{\todo{lecturer}}
+{Jing Cannon, Haiyan Zhu}
+
+%==========================================================================================================
+\section{What problem do we want to solve?}
+
+Large language models (LLMs) write fluent answers, but in a specialised domain such as personal finance they
+can state things that are not true, and the user has no way to check them. Retrieval-augmented generation
+(RAG)~[2] addresses this: the system first retrieves documents that are relevant to the question and then asks
+the LLM to answer \emph{only} from those documents and to cite them. The answer can then be no better than what
+was retrieved. If the right document is missing from the retrieved set, the LLM either answers from the wrong
+evidence or has to refuse.
+
+This project studies the \textbf{retrieval layer} of a financial question-answering chatbot, not its user
+interface. Retrieval is a nearest-neighbour search over text embeddings, and every design choice in it trades
+accuracy against speed and memory. We ask three research questions:
+\begin{itemize}[leftmargin=*]
+\item \textbf{RQ1 --- search algorithm.} How much retrieval quality do we lose, and how much latency and
+memory do we save, when we replace exact $k$-nearest-neighbour search with an approximate index (inverted file,
+IVF)?
+\item \textbf{RQ2 --- dimensionality.} How far can PCA reduce the 384-dimensional embeddings (to 128, 64, 32)
+before quality drops too much?
+\item \textbf{RQ3 --- reliability.} How do the number of retrieved documents $k$ and a similarity threshold
+$\tau$ affect answer quality, and can $\tau$ make the system refuse questions that the corpus cannot answer?
+\end{itemize}
+The project uses several CS~541 topics directly: $k$-nearest neighbours with cosine similarity, PCA,
+$k$-means clustering (the IVF index and our own clustering index), PyTorch, and an empirical analysis of
+algorithmic efficiency.
+
+%==========================================================================================================
+\section{What datasets did you use?}
+
+\paragraph{FiQA-2018.} We use the FiQA-2018 financial opinion QA dataset~[3] in the version distributed by the
+BEIR benchmark~[5]. The corpus has \textbf{57,638} posts from finance forums (StackExchange
+Investment and Reddit), and the questions are real user questions such as ``Is there ACH analogue in Asia?''.
+Each question comes with relevance labels (qrels) that mark which posts answer it; all labels have score~1, and a
+question has about 2.5 relevant posts on average (Table~\ref{tab:data}). One corpus is shared by all splits. We do
+not train a model, so the train split is not used. All tuning is done on the 500 \textbf{dev} questions, and the
+648 \textbf{test} questions were evaluated only once, after all settings were fixed (Section~\ref{sec:test}).
+SciFact~[6] (5,183 abstracts, 300 questions) served only as a small smoke test of the pipeline.
+
+The retrieval unit is a whole post, because the labels are given per post. Figure~\ref{fig:lengths} shows the
+consequence: the median post has 120 word pieces, but our encoder reads at most 256, so \textbf{19\%} of the posts
+are cut off before they are embedded. Splitting posts into chunks would avoid this, but it would no longer match
+the post-level labels, so we kept whole posts and list the truncation as a limitation. Questions are short
+(median 15 word pieces) and are never truncated.
+
+\begin{table}[h]
+\centering
+\resizebox{\linewidth}{!}{\input{tables/data_fiqa.tex}}
+\caption{FiQA splits and their use. Relevant posts per question: mean, median, max.}
+\label{tab:data}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{data_lengths.pdf}
+\caption{Length of FiQA texts in MiniLM word pieces. (a) The 57,638 corpus posts; the dotted line is the
+encoder's 256-piece limit --- 19\% of posts are truncated before encoding. (b) The 500 dev questions.}
+\label{fig:lengths}
+\end{figure}
+
+\paragraph{Unanswerable questions (for RQ3).} FiQA has no questions without an answer, but a refusal threshold can
+only be evaluated with such questions. We therefore built them from dev: we picked 50 dev questions whose relevant
+posts no other question needs and removed those posts (116 in total) from the corpus. Removing the labelled posts
+does not guarantee that a question becomes unanswerable, because FiQA is a forum with many answers per topic and
+the labels mark only some of them. We therefore checked every candidate by hand: for each one we read the top-5
+retrieved posts and kept it only if none of them answered the question. ChatGPT drafted a verdict and a reason for
+each candidate; we discussed every candidate together and made the final decision. Only \textbf{10 of the 50}
+candidates were really unanswerable; in the other 40, an unlabelled post still answered the question. These 10
+questions, together with the 450 remaining answerable dev questions, are the refusal benchmark.
+
+%==========================================================================================================
+\section{What models have you tried?}
+
+\paragraph{Pipeline.} Our system has four steps: (1) embed the question, (2) retrieve the $k$ most similar posts,
+(3) refuse if even the best post is not similar enough, (4) otherwise let an LLM answer from the $k$ posts with
+citations (Algorithm~\ref{alg:rag}).
+
+\paragraph{Encoder.} All texts are embedded with \texttt{sentence-transformers/all-MiniLM-L6-v2}~[4], a small
+Sentence-BERT model that maps a text to a 384-dimensional vector. We L2-normalise every vector, so cosine
+similarity equals the inner product. The encoder is fixed in every experiment; only the retrieval side changes.
+
+\paragraph{Search back ends (RQ1).} All back ends search the same normalised embeddings:
+\begin{enumerate}[label=(\alph*), leftmargin=*]
+\item \textbf{TorchKNN} --- our exact brute-force search in PyTorch: one matrix product between the query and
+all 57,638 document vectors, then \texttt{topk}. Cost $O(N d)$ per query.
+\item \textbf{FAISS Flat}~[1] (\texttt{IndexFlatIP}) --- the same exact search in an optimised C++ library, used
+as a correctness reference for (a).
+\item \textbf{FAISS IVF} (\texttt{IndexIVFFlat}) --- approximate search. $k$-means splits the corpus into
+$n_{\text{list}} = 240 \approx \sqrt{57{,}638}$ cells; a query is compared only with the documents in its
+$n_{\text{probe}}$ closest cells. We tried $n_{\text{probe}} \in \{1, 4, 16, 64\}$.
+\item \textbf{Our $k$-means index} (bonus) --- the IVF idea implemented by us in PyTorch (20 Lloyd iterations,
+240 clusters, inverted lists), to compare our own implementation with FAISS.
+\end{enumerate}
+
+\paragraph{PCA (RQ2).} PCA is fitted on the corpus embeddings only and reduces them to 128, 64 or 32 dimensions.
+The reduced vectors are normalised again, and every query goes through exactly the same transform.
+
+\paragraph{Generator and refusal (RQ3).} The LLM is \texttt{openai/gpt-oss-120b}, an open-weight model, called
+through the Groq API with temperature~0, low reasoning effort and at most 400 output tokens. The prompt gives the
+$k$ posts with their ids and tells the model to answer only from them, to cite the id after every claim, and
+otherwise to reply with one fixed refusal sentence. The proposal planned a small local instruction-tuned model; we
+switched to a larger hosted open-weight model because we expected small models to be weak at citing and staying
+inside the documents, and because a free API with published limits needed no GPU and no multi-gigabyte download. Before
+the LLM is called, the system refuses on its own if the top-1 cosine similarity is below a threshold $\tau$.
+
+\begin{algorithm}[h]
+\caption{Answer or refuse}
+\label{alg:rag}
+\KwInput{question $q$, document embeddings $D$, index, $k$, threshold $\tau$}
+\KwOutput{an answer with cited post ids, or a refusal}
+$e \leftarrow \text{normalise}(\text{PCA}(\text{MiniLM}(q)))$ \tcp*{PCA only in config B}
+$(s_1, \dots, s_k), (d_1, \dots, d_k) \leftarrow \text{index.search}(e, k)$ \tcp*{cosine scores, best first}
+\eIf{$s_1 < \tau$}{\Return refusal \tcp*{no post is similar enough}}
+{\Return LLM(prompt$(q, d_1, \dots, d_k)$) \tcp*{may still return the refusal sentence}}
+\end{algorithm}
+
+\paragraph{Final configurations.} From the dev results we fixed two configurations before touching the test set:
+\textbf{A (accurate)} = 384-d exact TorchKNN, $\tau = 0.60$; and \textbf{B (efficient)} = PCA 128-d + FAISS IVF
+($n_{\text{list}}=240$, $n_{\text{probe}}=16$), $\tau = 0.66$. Generation uses A with $k=5$. A Streamlit demo runs
+the same pipeline with config A.
+
+%==========================================================================================================
+\section{How to evaluate the performance of the model on your dataset?}
+
+\paragraph{Retrieval quality.} For each question we compare the top-10 posts with the labelled relevant posts:
+\begin{itemize}[leftmargin=*]
+\item \textbf{Recall@$k$} ($k = 5, 10$): the fraction of the relevant posts that appear in the top $k$. Recall@10 is
+our main metric. Recall@5 matters because only the top 5 posts are given to the LLM.
+\item \textbf{MRR@10}: the mean of $1/\text{rank}$ of the first relevant post (0 if none is in the top 10).
+\item \textbf{nDCG@10}: like recall, but a relevant post counts more the higher it is ranked
+($\text{DCG} = \sum_i \text{rel}_i / \log_2(i+1)$, divided by the best possible DCG).
+\end{itemize}
+Rank matters for two reasons: the LLM only sees the first five posts, and the refusal rule only looks at the
+top-1 score.
+
+\paragraph{Efficiency.} Latency is measured per single query (batch size 1, as in a chatbot), after a warm-up, over
+three passes of all queries; we report the mean and the 95th percentile (p95). We also report the index memory.
+Latencies are only compared within one session on one machine; differences below about 10\% are within the noise
+we observed and are treated as ties.
+
+\paragraph{Refusal.} On the 450 answerable and 10 unanswerable dev questions we measure the \emph{answer rate}
+(answerable questions that are answered) and the \emph{correct-refusal rate} (unanswerable questions that are
+refused). We choose $\tau$ by \emph{balanced accuracy}, the mean of the two rates. Plain accuracy would be
+misleading: with 450 answerable and 10 unanswerable questions, ``always answer'' already reaches 97.8\% accuracy
+but only 0.5 balanced accuracy.
+
+\paragraph{Answer quality.} The LLM's answers are scored on a 1--3 rubric with two separate scores.
+\emph{Correctness} compares the answer with the labelled relevant posts (3 = covers the main point without errors,
+2 = partly right, 1 = wrong). \emph{Groundedness} checks every claim against the $k$ posts the model was given
+(3 = everything is supported and correctly cited, 2 = mostly supported, 1 = made up or from outside knowledge).
+The two scores fail in different ways: ``correct but not grounded'' means the model used its own knowledge, which
+the user cannot verify; ``grounded but wrong'' means retrieval gave the wrong posts. Refusals are not scored; they
+are labelled \emph{refused} (the posts really lack the answer) or \emph{refused wrongly} (they contain it). ChatGPT
+drafted a score and a reason for every answer; we discussed each item together and decided the final scores. This
+is one joint score per answer, so we cannot report agreement between two independent raters.
+
+\paragraph{Protocol.} Every setting ($n_{\text{probe}}$, PCA dimension, $k$, $\tau$) was chosen on dev. The two
+final configurations were then written down and evaluated \textbf{once} on the 648 test questions; nothing was
+changed afterwards. For generation we sampled 100 test questions with a fixed random seed (42), which is also used
+everywhere else.
+
+%==========================================================================================================
+\section{How does your model perform?}
+
+\subsection{E1: exact vs.\ approximate search (RQ1)}
+
+Table~\ref{tab:e1} summarises E1 on dev. Our TorchKNN and FAISS Flat give identical scores on all four quality
+metrics, which validates our implementation against a reference. Their latencies (0.77 vs.\ 0.83 ms p95) are a tie:
+both do the same $O(Nd)$ scan, which for a single query is limited by memory bandwidth.
+
+IVF shows a clear accuracy--speed curve. With $n_{\text{probe}} = 1$ it is 47$\times$ faster but loses
+18.35 points of Recall@10; each larger $n_{\text{probe}}$ buys accuracy back at a higher price in speed. At
+$n_{\text{probe}} = 64$ (about 27\% of the corpus visited) IVF reproduces the exact result, so the losses at small
+$n_{\text{probe}}$ come from relevant posts that lie in cells the query does not visit. We chose
+$n_{\text{probe}} = 16$ as the trade-off: $-2.82$ points for a 6.7$\times$ lower p95. The index adds less than
+1~MB (centroids and inverted lists), so IVF saves time but not memory.
+
+Our own $k$-means index reaches the same accuracy as FAISS IVF at the same settings (Recall@10 0.4435 vs.\ 0.4383)
+but is 17$\times$ slower than FAISS IVF and even slower than exact search, because it loops over queries and
+cells in Python while FAISS uses optimised C++. Our implementation reproduces the accuracy of an industrial index,
+but not its speed.
+% If H finishes the corpus-size sweep (10k / 25k / 57,638 docs), add one sentence and a figure here on how the
+% IVF speed-up grows with N.
+
+\begin{table}[h]
+\centering
+\resizebox{\linewidth}{!}{\input{tables/e1_methods.tex}}
+\caption{E1 on FiQA dev (500 questions, 384-d, full corpus). IVF uses $n_{\text{list}} = 240$. p95 latency per
+single query at the library's natural thread count; speed-up relative to TorchKNN. $^{*}$Measured with one
+thread.}
+\label{tab:e1}
+\end{table}
+
+\subsection{E2: PCA dimensionality (RQ2)}
+
+Table~\ref{tab:pca} and Figure~\ref{fig:pca} show the effect of PCA with exact search, so any change is caused by
+PCA alone. Memory falls in proportion to the dimension. Quality falls more slowly than the explained variance at
+first, but the gap closes quickly: 128 dimensions keep 79.5\% of the variance and lose only 2.54 points of
+Recall@10, while 64 dimensions lose 9.94 points and 32 lose 19.79. The first discarded directions are mostly noise
+for retrieval; below 128 PCA starts to remove directions that carry the ranking signal. The speed-up is smaller
+than the reduction in dimension (3$\times$ fewer dimensions give 2.6$\times$ lower p95) because part of the cost
+per query does not depend on $d$. We therefore chose \textbf{128 dimensions}: 3$\times$ less memory and
+2.6$\times$ faster for 2.54 points.
+
+An important difference from IVF: the IVF loss can be bought back with a larger $n_{\text{probe}}$, while the
+information removed by PCA is gone. Combining both in config B (128-d + IVF 16) costs 4.88 points of Recall@10 on
+dev, slightly less than the sum of the two separate losses, and is 30$\times$ faster than config A in the same
+session (Table~\ref{tab:final}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.45\linewidth]{e2_variance.pdf}
+\includegraphics[width=0.9\linewidth]{e2_pca_tradeoff.pdf}
+\caption{E2 on FiQA dev. Top: cumulative explained variance of PCA. Bottom: (a) Recall@10 and nDCG@10 vs.
+dimension; (b) Recall@10 vs.\ p95 latency.}
+\label{fig:pca}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\resizebox{\linewidth}{!}{\input{tables/e2_pca.tex}}
+\caption{E2: PCA dimension vs.\ quality, latency and memory (FiQA dev, exact search). Latencies are from a
+different machine than E1 and must not be compared with Table~\ref{tab:e1}.}
+\label{tab:pca}
+\end{table}
+
+\subsection{E3: refusal threshold and top-$k$ (RQ3)}
+
+\paragraph{Threshold $\tau$.} The top-1 cosine similarity separates answerable from unanswerable questions
+reasonably well (Figure~\ref{fig:tau}, top): the medians are 0.652 and 0.549, and the area under the ROC curve is
+0.823. Before our manual check, with all 50 candidates, the AUC was only 0.56, because most ``unanswerable''
+candidates were in fact answerable. Without the check, threshold refusal would have looked useless. The grid search
+(Figure~\ref{fig:tau}, bottom; Table~\ref{tab:tau}) gives $\tau = 0.60$ for config A: it answers 76\% of the
+answerable questions and refuses 8 of the 10 unanswerable ones (balanced accuracy 0.78). Config B needs its own
+threshold, $\tau = 0.66$, because PCA raises all cosine values. With only 10 unanswerable questions this result is
+uncertain: the 95\% confidence interval for 8/10 is roughly 0.49--0.94.
+
+\begin{table}[h]
+\centering
+\resizebox{\linewidth}{!}{\input{tables/e3_tau.tex}}
+\caption{E3: refusal threshold on FiQA dev (450 answerable, 10 verified unanswerable questions).}
+\label{tab:tau}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\linewidth]{e3_top1_distribution.pdf}
+\includegraphics[width=0.9\linewidth]{e3_tau_curve.pdf}
+\caption{E3 on FiQA dev. Top: top-1 cosine of answerable vs.\ verified unanswerable questions. Bottom: refusal
+threshold grid search for configs A and B.}
+\label{fig:tau}
+\end{figure}
+
+\paragraph{Number of documents $k$.} On 20 dev questions (config A), more context helps correctness and makes the
+LLM refuse less often, but it lowers groundedness (Figure~\ref{fig:k}): from $k=1$ to $k=10$ the number of answered
+questions rises from 11 to 17 and correctness from 2.36 to 2.65, while groundedness falls from 3.00 to 2.65. With
+more posts the model combines more sources and makes more claims that are not exactly supported by them. We chose
+$k=5$ as the compromise (correctness 2.53, groundedness 2.87). With 20 questions these differences are small and
+should be read as trends.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{e3_quality_vs_k.pdf}
+\caption{Answer quality vs.\ $k$ on 20 FiQA dev questions (config A).}
+\label{fig:k}
+\end{figure}
+
+\subsection{Final test evaluation (run once)}
+\label{sec:test}
+
+\paragraph{Retrieval.} The dev conclusions hold on the test set (Table~\ref{tab:final}, Figure~\ref{fig:test},
+top). Both configurations score slightly lower on test than on dev (Recall@10: A 0.4665 $\rightarrow$ 0.4413,
+B 0.4178 $\rightarrow$ 0.3878), as expected after choosing settings on dev. The gap between them stays almost the
+same ($-5.35$ points on test, $-4.88$ on dev), and B needs 3$\times$ less memory. During the test run the machine
+was under heavy background load, and A's multithreaded search slowed down (p95 11.6 ms vs.\ 2.7 ms on dev) while
+B's small search did not. The test latency of A is therefore not reliable, and we report the dev same-session
+speed-up of \textbf{30$\times$} as the speed result. We did not re-run the test, by protocol.
+
+\begin{table}[h]
+\centering
+\resizebox{\linewidth}{!}{\input{tables/final_retrieval.tex}}
+\caption{Final configurations on FiQA dev and test. Test latency of A was inflated by background load.}
+\label{tab:final}
+\end{table}
+
+\paragraph{Generation.} Of the 100 test questions, the threshold refused 16, so the system's answer rate is 0.84
+(0.76 on dev). Of the remaining 84, the LLM itself refused 14: in 10 cases correctly, in 4 cases although the
+answer was in the posts. The system gave a real answer to \textbf{70} questions, with mean correctness 2.26 and
+groundedness 2.36 (Table~\ref{tab:gen}). These scores are lower than on dev (2.53 / 2.87 on 20 questions); the
+dev sample is small, so part of this difference may be chance.
+
+The most useful result is the split by retrieval success (Figure~\ref{fig:test}, bottom b). When a labelled
+relevant post is among the five posts given to the LLM, correctness is 2.36; when none is, it drops to 1.87, while
+groundedness stays the same (2.36 vs.\ 2.33). The LLM stays faithful to the posts it receives even when they are
+the wrong posts. In our system, errors come mainly from \textbf{retrieval}, not from generation, so better retrieval
+would help more than a better prompt. We also saw that 13 of the answered questions hit the 400-token output limit
+(the reasoning tokens of gpt-oss count toward it), and these answers scored lower (2.08 / 2.15).
+
+\begin{table}[h]
+\centering
+\resizebox{0.75\linewidth}{!}{\input{tables/final_generation.tex}}
+\caption{Answer quality on 100 FiQA test questions (config A, $k=5$, $\tau=0.60$), mean scores 1--3. The
+``$\tau$-refused'' row scores answers the LLM gave for questions the system refused; they are not shown to the
+user.}
+\label{tab:gen}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{final_dev_vs_test.pdf}
+\includegraphics[width=0.9\linewidth]{final_generation.pdf}
+\caption{Top: retrieval quality of A and B on dev vs.\ test. Bottom: the final system on 100 test questions ---
+(a) outcome per question, (b) answer quality with and without a relevant post in the top 5.}
+\label{fig:test}
+\end{figure}
+
+\subsection{Answers to the research questions}
+
+\paragraph{RQ1 --- How much retrieval quality do we trade for faster search?}
+On FiQA dev, FAISS IVF with 16 probes reduced p95 retrieval latency from 0.765 ms to 0.114 ms, a 6.7$\times$
+speed-up. Recall@10 fell from 46.65\% to 43.83\%, a drop of 2.82 percentage points, and index memory stayed about
+the same. We chose 16 probes as the operating point because it retained most of the exact-search recall while
+substantially reducing query latency.
+
+\paragraph{RQ2 --- How far can we reduce the embedding dimension?}
+Among the dimensions we tested, 128 offered the best trade-off. Reducing the embeddings from 384 to 128 dimensions
+cut embedding memory to one third and made exact search 2.6$\times$ faster at p95, with a 2.54-point drop in
+Recall@10. The recall losses grew to 9.94 points at 64 dimensions and 19.79 points at 32. We therefore selected
+128 dimensions for the smaller configuration.
+
+\paragraph{RQ3 --- How do the number of retrieved posts and the similarity threshold affect reliability?}
+On 20 dev questions, increasing $k$ from 1 to 10 raised mean correctness from 2.36 to 2.65 and reduced mean
+groundedness from 3.00 to 2.65 among the answers the model gave. The number of answers also increased from 11 to
+17, so the averages reflect different sets of questions. We chose $k=5$ as a compromise. With $\tau=0.60$,
+configuration A passed 76\% of answerable dev questions through the similarity gate and rejected 8 of the 10
+manually reviewed unanswerable cases. The threshold was selected on this same small dev benchmark, so its
+performance on unseen unanswerable questions remains uncertain.
+
+\subsection{Limitations}
+\begin{itemize}[leftmargin=*]
+\item 19\% of the posts are truncated by the encoder, so the end of a long answer is invisible to retrieval.
+\item The threshold was chosen and evaluated on the same 10 unanswerable dev questions, and there is no
+unanswerable test set. The correct-refusal rate is therefore uncertain and probably optimistic.
+\item Answer scores are one joint, ChatGPT-assisted judgement per answer. The proposal planned 30 answers scored
+independently by both of us; we did not do this, so we have no inter-rater agreement.
+\item The choice of $k$ rests on only 20 dev questions.
+\item 14 of the 100 test answers hit the 400-token limit.
+\item Test latency of config A is unreliable because of background load; E1 and E2 latencies come from different
+machines and are only compared within one table.
+\item The LLM is a hosted model that can change over time; we recorded the model id and date with every answer.
+\end{itemize}
+
+%==========================================================================================================
+\section{How does your AI teammate perform?}
+% Written by J and H; Claude added disclosure details (code scope, report/slides drafting, ChatGPT verdicts, final decision by J+H).
+
+Claude Code wrote most of the code at our request and helped test it, ran experiments, and turned the results into
+tables and figures. The exception is the search back ends (exact KNN, FAISS wrappers and our $k$-means index):
+Haiyan implemented them, and Claude only explained concepts and helped locate bugs. Claude also drafted the text of
+this report and the presentation, which we then revised. ChatGPT drafted the answer scores (dev and test) and the
+verdicts for the 50 unanswerable candidates, and gave a written reason for each judgment; we discussed every item
+and decided the final judgments together. The written reasons made it easier to review why a response received a
+particular score. Every use of AI is listed in \texttt{AI\_USAGE.md} in our repository.
+
+The AI sometimes made confident claims that we had to check. For example, Claude said a merge had been pushed, but
+the repository status showed otherwise. In the scoring work, an early ChatGPT draft assigned full groundedness credit to
+refusals. We corrected that by leaving both quality scores blank for refusals and counting them separately. We
+checked the code with tests and used the saved run records to verify the results. The scoring process produced one
+set of judgments, so we cannot estimate agreement between independent raters.
+
+%==========================================================================================================
+\section*{References}
+\begin{enumerate}[leftmargin=*]
+\item Johnson, J., Douze, M., \& J\'egou, H. (2019). Billion-scale similarity search with GPUs. \emph{IEEE Transactions on Big Data}.
+\item Lewis, P., et al. (2020). Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. \emph{NeurIPS}.
+\item Maia, M., et al. (2018). WWW'18 Open Challenge: Financial Opinion Mining and Question Answering. \emph{Companion Proc.\ of The Web Conference}.
+\item Reimers, N., \& Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. \emph{EMNLP}.
+\item Thakur, N., et al. (2021). BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models. \emph{NeurIPS Datasets and Benchmarks}.
+\item Wadden, D., et al. (2020). Fact or Fiction: Verifying Scientific Claims. \emph{EMNLP}.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,4 @@
+| Config | Median top-1 (answerable / unanswerable) | AUC | τ | Answer rate | Correct refusal | Balanced |
+|---|---|---|---|---|---|---|
+| A — 384-d exact | 0.652 / 0.549 | 0.823 | 0.60 | 0.760 | 0.80 | 0.780 |
+| B — 128-d PCA + IVF 16 | 0.680 / 0.574 | 0.826 | 0.66 | 0.609 | 0.90 | 0.754 |

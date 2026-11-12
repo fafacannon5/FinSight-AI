@@ -13,9 +13,9 @@ status: active
 
 ## Current status
 
-**Phase:** proposal finalized → E1 experimentation (Week 10 tasks).
-**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex + E1 grid merged via I2/I4 (PR #3); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only); E2 PCA grid merged (PR #4); M8 manual check + M9 RAG layer + E3 dev analysis 2026-11-01 (10 verified unanswerable; k = 5, τ = 0.60) on `j/e3-refusal`; final configs A + B fixed 2026-11-01; M11 Streamlit demo on `j/m11-demo`.
-**Next:** PR I5 (`j/e3-refusal`) review by H · E1 corpus-size sweep 10k/25k/57,638 (H) · final test evaluation (configs fixed in [final_configs](decisions/final_configs.md)) · final report and 10-min video (see [guide.md](../agents/workflow/guide.md) milestones).
+**Phase:** M12 — final test evaluation and report (dev work finished).
+**Done:** proposal ([PDF](../raw_sources/references/CS541_RAG_Project_Proposal_Final.pdf)); repo scaffolded; M1 metrics, M2 data loading, M3 embedding cache, merge I1 (PR #1); M7 PCA merged via I3 (PR #2); M4 TorchKNN + M6 FAISS Flat/IVF + bonus KMeansIndex + E1 grid merged via I2/I4 (PR #3); M5 SciFact smoke run passed 2026-10-28 (Recall@10 0.7833, debug only); E2 PCA grid merged (PR #4); M8 manual check + M9 RAG layer + E3 dev analysis 2026-11-01 (10 verified unanswerable; k = 5, τ = 0.60) merged via I5 (PR #5); final configs A + B fixed 2026-11-01; M11 Streamlit demo merged (PR #6); M12 test script `final_generate.py` (locked, not run) and E2 + E3 dev report figures (notebooks 03, 04) on `j/m12-final`; final test evaluation run once 2026-11-11 ([final_test](experiments/final_test.md)); test answers scored by J + H, notebooks 05 and 01 done.
+**Next:** E1 corpus-size sweep 10k/25k/57,638 + `02_e1` notebook (H) · final report and 10-min video.
 
 ## Problem
 

@@ -2,6 +2,87 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] report | J + H rewrite of RQ answers and Section 6; slides synced
+
+- RQ answers (new subsection 5.5) written by J + H; all numbers checked against the tables, none changed
+- Section 6 by J + H; Claude added the disclosure their draft left out (code scope, report/slide drafting, ChatGPT dev scores + unanswerable verdicts, J + H decided); the refusal-groundedness mistake is attributed to an early ChatGPT draft (confirmed by J)
+- Slides 8 / 13 now say τ "passes / rejects" instead of "answers / refuses"; slide 12 and script use the same two AI-mistake examples as Section 6
+- In PR #7 (`j/m12-final` → `main`), waiting for H's review
+
+## [2026-11-11] docs | README for the professor (Claude, at J's request)
+
+- Results at a glance (configs A/B on test, RQ1–RQ3 one-liners), first-run downloads, `.env` key, reproduction commands for E1/E2/E3 and the locked final run, notebooks, demo
+- Notebook 02 (E1, H) not listed yet — add a row when it exists
+
+## [2026-11-11] report | Slides + 10-min script draft (Claude, at J's request)
+
+- `report/FinSight-AI_slides.pptx`: 13 slides (intro, data, pipeline, evaluation, E1, E2, E3, test retrieval, test generation, demo, limitations + AI, conclusion); speaker notes = script
+- `report/presentation_script.md`: same script, speaker J/H and time per slide (~1,170 words ≈ 9–10 min)
+- Open: J + H rewrite script, insert demo screen recording on slide 11, rehearse, record
+
+## [2026-11-11] report | Final report full draft (Claude, at J's request)
+
+- `report/final_report.tex`: all 6 sections written in English from the wiki and `report/tables/*`; one `\todo` left (lecturer)
+- New `report/tables/e1_methods.tex`, typed from `e1_summary.md` (natural-thread p95; E1 results are on H's machine)
+- Section 6 (AI teammate) is a draft of J and H's own judgement — they must rewrite or confirm it; disclosed in `AI_USAGE.md`
+- Open: J + H review every sentence; optional E1 corpus-size sweep (H); compile in Overleaf; slides
+
+## [2026-11-11] report | Final report skeleton on the course Overleaf template; LaTeX tables
+
+- `report/final_report.tex`: template preamble + `\lecture` header + the 6 required sections, with talking points
+  (`% KEY:`) and `\todo{}` placeholders for J and H's own text; all figures and tables wired in
+- `finsight.report.latex_table` / `save_table` now also write `report/tables/*.tex` (escapes τ, Δ, ×, _ …);
+  notebooks 01, 03, 04, 05 re-run → 7 `.tex` tables
+- The Overleaf project shown by J held another project's text (DNN on a health survey); only the template
+  structure is reused. Template header still says CS 583 → change preamble.tex to CS 541
+- Open: E1 section (H, notebook 02), section 6 written by J + H, slides
+
+## [2026-11-11] report | Notebook 01: data statistics and embedding cache check
+
+- FiQA 57,638 posts; train / dev / test 5,500 / 500 / 648 questions; 2.5 relevant posts per question (median 2)
+- Posts median 120 MiniLM word pieces; 19.2% exceed the 256 limit and are truncated (limitation); dev questions median 15
+- Embedding cache 57,638 × 384 float32, 84.4 MB, all norms 1.0, ids == sorted(corpus), fresh re-encoding of 5 docs cosine 1.0
+- `notebooks/01_data_and_embeddings.ipynb` → figure `data_lengths`, table `data_fiqa.md`
+- Pages updated: dataset/fiqa.md, overview.md
+
+## [2026-11-11] experiment | M12 test answers scored; notebook 05 (final figures and tables)
+
+- 100 test answers scored 1–3 by J and H together, ChatGPT as a helper (disclosed in AI_USAGE.md)
+- Outcome: 70 answered (correctness 2.26, groundedness 2.36), 10 LLM refused correctly, 4 wrongly, 16 τ-refused
+- No relevant doc in top 5 (n = 15): correctness 1.87 vs 2.36, groundedness unchanged (2.33 vs 2.36)
+- 14 answers hit the 400-token output cap (limitation)
+- `notebooks/05_final_test_results.ipynb` → figures `final_dev_vs_test`, `final_generation`; tables
+  `final_retrieval.md`, `final_generation.md`
+- Pages updated: experiments/final_test.md, overview.md
+
+## [2026-11-11] experiment | M12 final test evaluation run once (configs A + B, generation with A)
+
+- Retrieval, 648 test queries, full corpus: A Recall@10 0.4413 / nDCG@10 0.3687; B 0.3878 / 0.3275 → B − A
+  −5.35 pt (dev −4.88 pt); memory 84.4 vs 28.1 MB
+- Latency limitation: load avg ≈ 9.8 during the run; A p95 11.6 ms (dev 2.7), B 0.080 ms (dev 0.089) → use the
+  dev 30× as the speed result; not re-run by protocol
+- Generation, 100 test questions (seed 42), k = 5, τ = 0.60: 16 τ-refused (answer rate 0.84), relevant doc in
+  top 5 for 62; LLM `REFUSAL_TEXT` 23; 104,914 tokens, no errors
+- Open: manual scoring of `final_gen_a/scoring.csv` (J + H), `05_final_test_results`
+- Pages updated: experiments/final_test.md, overview.md
+
+## [2026-11-02] report | E2 + E3 report figures and tables (dev only)
+
+- `notebooks/03_e2_pca.ipynb` → figures `e2_variance`, `e2_pca_tradeoff`; tables `e2_pca.md`, `final_configs_dev.md`
+- `notebooks/04_e3_reliability.ipynb` → figures `e3_top1_distribution`, `e3_tau_curve`, `e3_quality_vs_k`;
+  tables `e3_tau.md`, `e3_quality_k.md`
+- All figures PDF + 300-dpi PNG + caption file (`report/figures/`); style in `src/finsight/report.py`
+- Decision (J, 2026-11-02): on test, all 100 questions go to the LLM; `refused_by_tau` marks the τ decision
+- Open: `02_e1` (H, E1 results on H's machine), `01_data`, `05_final_test_results` (after the test run)
+
+## [2026-11-02] code | M12 test generation script written (not run)
+
+- `scripts/final_generate.py`: config A, full corpus, k = 5, τ = 0.60, 100 test questions (seed 42); refuses to run
+  without `--final` (exit 2) and never overwrites a finished `final_gen_a` run (exit 4)
+- All 100 questions go to the LLM; `refused_by_tau` marks the τ decision, so both dev-comparable answer quality
+  and the system result (refuse first) can be reported
+- `tests/test_test_lock.py`: test lock checked for `final_generate.py` and `run_experiment.py final_a.yaml`
+
 ## [2026-11-01] milestone | M11 Streamlit demo (branch `j/m11-demo`)
 
 - `app/streamlit_app.py`: final config A (384-d exact TorchKNN, full 57,638-doc corpus, k = 5, τ = 0.60), refusal

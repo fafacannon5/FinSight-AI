@@ -1,0 +1,1 @@
+Answer quality vs. k on 20 FiQA dev questions (config A, gpt-oss-120b, scored by J and H together, with ChatGPT as a helper). (a) Mean correctness and groundedness (1–3) over answered rows. (b) Answered and refused questions per k. We use k = 5. With 11–17 answered rows per k the differences are trends, not significant.

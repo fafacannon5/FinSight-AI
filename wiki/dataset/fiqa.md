@@ -3,7 +3,7 @@ title: "FiQA-2018 (BEIR)"
 type: dataset
 tags: [fiqa, beir]
 created: 2026-10-11
-updated: 2026-10-25
+updated: 2026-11-11
 status: verified
 ---
 
@@ -24,8 +24,8 @@ to `validation`. qrels ids are int64 on the Hub → cast with `str()`. Download 
 `~/.cache/huggingface/`; load ≈ 3 s from cache, so no extra `data/` cache. Test split: only counted, never evaluated.
 
 Notes:
-- Retrieval unit = whole document. Long docs are truncated by the encoder (MiniLM max 256 word pieces) —
-  report as a limitation.
+- Retrieval unit = whole document. Long docs are truncated by the encoder (MiniLM max 256 word pieces): 19.2% of
+  posts are longer (median 120; measured in notebook 01, 2026-11-11) — report as a limitation.
 - Embedding cache: 57,638 × 384 × 4 B ≈ 88 MB → `data/fiqa_corpus_minilm.npy` (gitignored), rows in `sorted(corpus)`
   order, ids saved alongside in `data/fiqa_corpus_minilm.ids.json`. Built 2026-10-25 (M3): 195 s on MPS, all norms 1.0.
 - **ID-type pitfall.** All ids must be `str`. If ids mismatch (int `1` vs str `"1"`), nothing matches and every

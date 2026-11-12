@@ -1,0 +1,1 @@
+Top-1 retrieval cosine on FiQA dev (config A). Top: 450 answerable questions. Bottom: the 10 manually verified unanswerable questions. The dotted line is the chosen refusal threshold τ = 0.60; AUC = 0.823.

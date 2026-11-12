@@ -1,0 +1,4 @@
+| Config | Dim | Index | Recall@10 | nDCG@10 | MRR@10 | p95 (ms) | Memory (MB) |
+|---|---|---|---|---|---|---|---|
+| A — accurate | 384 | exact | 0.4665 | 0.3881 | 0.4532 | 2.700 | 84.43 |
+| B — efficient | 128 | IVF 240 / nprobe 16 | 0.4178 | 0.3388 | 0.3956 | 0.089 | 28.14 |
