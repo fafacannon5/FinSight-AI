@@ -2,6 +2,17 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] experiment | M12 final test evaluation run once (configs A + B, generation with A)
+
+- Retrieval, 648 test queries, full corpus: A Recall@10 0.4413 / nDCG@10 0.3687; B 0.3878 / 0.3275 → B − A
+  −5.35 pt (dev −4.88 pt); memory 84.4 vs 28.1 MB
+- Latency limitation: load avg ≈ 9.8 during the run; A p95 11.6 ms (dev 2.7), B 0.080 ms (dev 0.089) → use the
+  dev 30× as the speed result; not re-run by protocol
+- Generation, 100 test questions (seed 42), k = 5, τ = 0.60: 16 τ-refused (answer rate 0.84), relevant doc in
+  top 5 for 62; LLM `REFUSAL_TEXT` 23; 104,914 tokens, no errors
+- Open: manual scoring of `final_gen_a/scoring.csv` (J + H), `05_final_test_results`
+- Pages updated: experiments/final_test.md, overview.md
+
 ## [2026-11-02] report | E2 + E3 report figures and tables (dev only)
 
 - `notebooks/03_e2_pca.ipynb` → figures `e2_variance`, `e2_pca_tradeoff`; tables `e2_pca.md`, `final_configs_dev.md`
