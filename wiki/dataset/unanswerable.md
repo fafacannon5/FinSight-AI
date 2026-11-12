@@ -38,7 +38,8 @@ Source: `experiments/results/e3_unanswerable/tau_curve.json`.
 ## Caveats
 
 - Only 10 verified examples: each one moves the correct-refusal rate by 0.1.
-- Verdicts are a joint J+H decision, not two independent checks.
+- Verdicts are a joint J+H decision, not two independent checks. ChatGPT drafted verdicts and reasons; J and H
+  discussed each candidate and decided (disclosed in `AI_USAGE.md`).
 - Reproduce the candidates with `python scripts/e3_build_unanswerable.py --n 50` (seed 42).
 
 ## Related

@@ -1,0 +1,1 @@
+Retrieval quality of the two final configurations on FiQA dev (500 queries) and test (648 queries), full corpus. Both drop slightly on test; the gap between A and B is similar (Recall@10: −4.88 pt on dev, −5.35 pt on test).

@@ -2,6 +2,16 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] experiment | M12 test answers scored; notebook 05 (final figures and tables)
+
+- 100 test answers scored 1–3 by J and H together, ChatGPT as a helper (disclosed in AI_USAGE.md)
+- Outcome: 70 answered (correctness 2.26, groundedness 2.36), 10 LLM refused correctly, 4 wrongly, 16 τ-refused
+- No relevant doc in top 5 (n = 15): correctness 1.87 vs 2.36, groundedness unchanged (2.33 vs 2.36)
+- 14 answers hit the 400-token output cap (limitation)
+- `notebooks/05_final_test_results.ipynb` → figures `final_dev_vs_test`, `final_generation`; tables
+  `final_retrieval.md`, `final_generation.md`
+- Pages updated: experiments/final_test.md, overview.md
+
 ## [2026-11-11] experiment | M12 final test evaluation run once (configs A + B, generation with A)
 
 - Retrieval, 648 test queries, full corpus: A Recall@10 0.4413 / nDCG@10 0.3687; B 0.3878 / 0.3275 → B − A

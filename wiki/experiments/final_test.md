@@ -45,5 +45,21 @@ Run once on 2026-11-11 at J's explicit request ("跑测试集"), with the config
 
 Tokens 104,914 (budget 150K), `openai/gpt-oss-120b`, reasoning low, temperature 0, no errors.
 
-**Open:** manual 1–3 correctness / groundedness scoring of `final_gen_a/scoring.csv` by J + H
-([rubric](e3_rubric.md)), then `notebooks/05_final_test_results.ipynb`.
+## Answer scores (J + H together, ChatGPT as a helper; [rubric](e3_rubric.md))
+
+System outcome for the 100 questions: 70 answered, 10 LLM refused correctly, 4 LLM refused wrongly, 16 τ-refused.
+
+| Subset | n | Correctness | Groundedness |
+|---|---|---|---|
+| Answered by the system | 70 | 2.26 | 2.36 |
+| … relevant doc in top 5 | 55 | 2.36 | 2.36 |
+| … no relevant doc in top 5 | 15 | 1.87 | 2.33 |
+| … answer hit the 400-token cap | 13 | 2.08 | 2.15 |
+| Dev reference (k = 5, 20 questions) | 20 | 2.53 | 2.87 |
+
+- Without a relevant doc in the top 5 correctness drops, groundedness does not → retrieval is the bottleneck.
+- 14 of 100 answers hit `max_tokens = 400` (gpt-oss reasoning tokens count toward it) → limitation.
+- ChatGPT helped with scoring on test (and on dev, run 001 — same procedure); final scores are J and H's joint decision. One joint score → no
+  inter-rater agreement.
+- Figures / tables: `notebooks/05_final_test_results.ipynb` → `final_dev_vs_test`, `final_generation`,
+  `final_retrieval.md`, `final_generation.md`.

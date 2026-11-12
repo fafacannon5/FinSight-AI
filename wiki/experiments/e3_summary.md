@@ -16,7 +16,7 @@ Answers are scored with the [scoring rubric](e3_rubric.md). Unanswerable questio
 
 | Setting | Value | Evidence | Run |
 |---|---|---|---|
-| top-k for generation | **k = 5** (correctness 2.53, groundedness 2.87, refusal rate 0.25) | 20 questions, J+H consensus | [run 001](e3_run_001.md) |
+| top-k for generation | **k = 5** (correctness 2.53, groundedness 2.87, refusal rate 0.25) | 20 questions, J+H consensus (ChatGPT-assisted) | [run 001](e3_run_001.md) |
 | refusal threshold, config A (384-d exact) | **τ = 0.60** on top-1 cosine (answer rate 0.76, correct refusal 0.80) | 450 answerable / 10 verified unanswerable | [run 002](e3_run_002.md) |
 | refusal threshold, config B (128-d + IVF 16) | **τ = 0.66** (answer rate 0.61, correct refusal 0.90) | same | [run 003](e3_run_003.md) |
 
