@@ -353,12 +353,27 @@ user.}
 \label{fig:test}
 \end{figure}
 
-\paragraph{Answers to the research questions.}
-\textbf{RQ1:} IVF with $n_{\text{probe}} = 16$ gives most of the speed of approximate search for a small loss
-($-2.82$ points, 6.7$\times$ faster); exact search remains the most accurate and is fast enough for 57,638
-documents. \textbf{RQ2:} 128 dimensions is the knee of the PCA curve; below that, quality falls quickly.
-\textbf{RQ3:} $k=5$ balances correctness and groundedness, and a threshold on the top-1 cosine refuses most
-unanswerable questions while still answering about three quarters of the answerable ones.
+\subsection{Answers to the research questions}
+
+\paragraph{RQ1 --- How much retrieval quality do we trade for faster search?}
+On FiQA dev, FAISS IVF with 16 probes reduced p95 retrieval latency from 0.765 ms to 0.114 ms, a 6.7$\times$
+speed-up. Recall@10 fell from 46.65\% to 43.83\%, a drop of 2.82 percentage points, and index memory stayed about
+the same. We chose 16 probes as the operating point because it retained most of the exact-search recall while
+substantially reducing query latency.
+
+\paragraph{RQ2 --- How far can we reduce the embedding dimension?}
+Among the dimensions we tested, 128 offered the best trade-off. Reducing the embeddings from 384 to 128 dimensions
+cut embedding memory to one third and made exact search 2.6$\times$ faster at p95, with a 2.54-point drop in
+Recall@10. The recall losses grew to 9.94 points at 64 dimensions and 19.79 points at 32. We therefore selected
+128 dimensions for the smaller configuration.
+
+\paragraph{RQ3 --- How do the number of retrieved posts and the similarity threshold affect reliability?}
+On 20 dev questions, increasing $k$ from 1 to 10 raised mean correctness from 2.36 to 2.65 and reduced mean
+groundedness from 3.00 to 2.65 among the answers the model gave. The number of answers also increased from 11 to
+17, so the averages reflect different sets of questions. We chose $k=5$ as a compromise. With $\tau=0.60$,
+configuration A passed 76\% of answerable dev questions through the similarity gate and rejected 8 of the 10
+manually reviewed unanswerable cases. The threshold was selected on this same small dev benchmark, so its
+performance on unseen unanswerable questions remains uncertain.
 
 \subsection{Limitations}
 \begin{itemize}[leftmargin=*]
@@ -376,40 +391,21 @@ machines and are only compared within one table.
 
 %==========================================================================================================
 \section{How does your AI teammate perform?}
-% DRAFT written by Claude from AI_USAGE.md. This section is your own judgement of the tools: J and H must
-% rewrite or confirm every sentence so that it says what you actually think.
+% Written by J and H; Claude added disclosure details (code scope, report/slides drafting, ChatGPT verdicts, final decision by J+H).
 
-\paragraph{How we used AI.} We used two AI tools, and every use is recorded in \texttt{AI\_USAGE.md} in our
-repository. \textbf{Claude} (Claude Code, an AI coding agent) helped with most of the engineering. It generated the
-project structure and unit tests, and at our request it wrote full code for the metrics, data loading, PCA, the RAG
-layer, the experiment and analysis scripts, the Streamlit demo and the report notebooks. For the search back ends
-(\texttt{TorchKNN}, FAISS wrappers and our $k$-means index) it only explained concepts and helped locate bugs; the
-implementation was written by Haiyan. Claude also ran experiments that we requested and wrote the experiment notes
-from the result files, and it drafted the text of this report from our results; we edited and checked it.
-\textbf{ChatGPT} helped us brainstorm the proposal, and it drafted the verdicts for the 50 unanswerable candidates
-and the scores for the dev and test answers. For every verdict and score we discussed the item together and made
-the final decision.
+Claude Code wrote most of the code at our request and helped test it, ran experiments, and turned the results into
+tables and figures. The exception is the search back ends (exact KNN, FAISS wrappers and our $k$-means index):
+Haiyan implemented them, and Claude only explained concepts and helped locate bugs. Claude also drafted the text of
+this report and the presentation, which we then revised. ChatGPT drafted the answer scores (dev and test) and the
+verdicts for the 50 unanswerable candidates, and gave a written reason for each judgment; we discussed every item
+and decided the final judgments together. The written reasons made it easier to review why a response received a
+particular score. Every use of AI is listed in \texttt{AI\_USAGE.md} in our repository.
 
-\paragraph{What worked well.} The AI was fast and consistent at work that is easy to check: boilerplate code,
-experiment configurations, tables and figures. It also helped with real debugging. When PyTorch and FAISS crashed
-together on macOS, we traced the cause together to two copies of the OpenMP runtime, and Claude wrote a script that
-measures FAISS in a separate process. Because it read every number from the result files, the wiki, tables and
-report stayed consistent with the experiments. For scoring, ChatGPT's drafts saved time and gave us a written
-reason to agree or disagree with for each of the 100 answers.
-
-\paragraph{Where it was wrong.} The AI made mistakes that looked convincing. Claude once reported that a merge had
-already been pushed when it had not; we saw this with \texttt{git status}. An edit it made to a notebook generator
-broke the script with a syntax error, which we only found by running it. The first versions of several figures had
-overlapping labels, which we caught by looking at the rendered images. It also once wrote in a draft that the dev
-answers had been scored without ChatGPT, which was not true; we corrected it. ChatGPT's draft verdicts and scores
-were a starting point, not a final answer.
-% J + H: if you changed some of ChatGPT's drafts after discussion, say so here with one example.
-
-\paragraph{How we kept control.} We kept the important decisions ourselves: the research questions, the final
-configurations, the LLM, every unanswerable verdict and every score. The test split was locked by a unit test and
-used only once, at our explicit request. Every code change had to pass the test suite (\texttt{pytest}), and we
-asked the AI to explain code line by line so that we can explain it ourselves. Overall, the AI teammate made us
-much faster, but only because we checked its work; it was a good assistant and a poor judge of its own output.
+The AI sometimes made confident claims that we had to check. For example, Claude said a merge had been pushed, but
+the repository status showed otherwise. In the scoring work, an early ChatGPT draft assigned full groundedness credit to
+refusals. We corrected that by leaving both quality scores blank for refusals and counting them separately. We
+checked the code with tests and used the saved run records to verify the results. The scoring process produced one
+set of judgments, so we cannot estimate agreement between independent raters.
 
 %==========================================================================================================
 \section*{References}

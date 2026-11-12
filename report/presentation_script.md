@@ -49,7 +49,7 @@ Second, PCA. Here we kept exact search, so any change is caused by PCA alone. Me
 
 ## 8. E3: a similarity threshold can refuse unanswerable questions (J, 1:10)
 
-Third, reliability. The top-1 cosine score separates answerable from unanswerable questions with an AUC of 0.82. Before the manual check it was only 0.56, because most 'unanswerable' candidates were in fact answerable. With tau at 0.60, config A answers 76 percent of answerable questions and refuses 8 of the 10 unanswerable ones. Config B needs its own tau, 0.66, because PCA raises all cosine values. With only ten questions this is uncertain. For k, giving the model more posts raised correctness but lowered groundedness, so we chose k equals five as the compromise.
+Third, reliability. The top-1 cosine score separates answerable from unanswerable questions with an AUC of 0.82. Before the manual check it was only 0.56, because most 'unanswerable' candidates were in fact answerable. With tau at 0.60, config A passes 76 percent of answerable questions through the gate and rejects 8 of the 10 unanswerable ones. Config B needs its own tau, 0.66, because PCA raises all cosine values. With only ten questions this is uncertain. For k, giving the model more posts raised correctness but lowered groundedness, so we chose k equals five as the compromise.
 
 ## 9. Test set (run once): the dev conclusions hold (H, 0:50)
 
@@ -65,7 +65,7 @@ Here is our Streamlit demo, which uses config A with k equals five and tau equal
 
 ## 12. Limitations and our AI teammate (H, 0:50)
 
-Our main limitations: one in five posts is truncated by the encoder; tau rests on only ten unanswerable questions; and each answer has one joint score, so we have no inter-rater agreement. We also used AI tools, and we disclose all of it in AI_USAGE.md. Claude helped write most of the code, experiments and this report, and ChatGPT drafted the scores, which we then decided together. It made us much faster, but it also made convincing mistakes — for example it once claimed a merge was pushed when it was not. We kept control with tests, a locked test set, and by checking every number against the result files.
+Our main limitations: one in five posts is truncated by the encoder; tau rests on only ten unanswerable questions; and each answer has one joint score, so we have no inter-rater agreement. We also used AI tools, and we disclose all of it in AI_USAGE.md. Claude wrote most of the code at our request — the search back ends were written by Haiyan — ran experiments, made the figures and drafted the report and these slides, which we revised. ChatGPT drafted the answer scores and the unanswerable verdicts with a reason for each, and we decided every item together. The AI sometimes made confident claims we had to check: Claude said a merge had been pushed when it had not, and an early ChatGPT draft gave refusals full groundedness credit — we now leave refusals unscored and count them separately. We checked the code with tests and verified every result against the saved run records.
 
 ## 13. Retrieval is where accuracy is won or lost (J, 0:25)
 
