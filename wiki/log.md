@@ -2,6 +2,13 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] report | J + H rewrite of RQ answers and Section 6; slides synced
+
+- RQ answers (new subsection 5.5) written by J + H; all numbers checked against the tables, none changed
+- Section 6 by J + H; Claude added the disclosure their draft left out (code scope, report/slide drafting, ChatGPT dev scores + unanswerable verdicts, J + H decided); the refusal-groundedness mistake is attributed to an early ChatGPT draft (confirmed by J)
+- Slides 8 / 13 now say τ "passes / rejects" instead of "answers / refuses"; slide 12 and script use the same two AI-mistake examples as Section 6
+- In PR #7 (`j/m12-final` → `main`), waiting for H's review
+
 ## [2026-11-11] docs | README for the professor (Claude, at J's request)
 
 - Results at a glance (configs A/B on test, RQ1–RQ3 one-liners), first-run downloads, `.env` key, reproduction commands for E1/E2/E3 and the locked final run, notebooks, demo
