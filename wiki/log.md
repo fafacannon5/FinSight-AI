@@ -2,6 +2,11 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-11] docs | README for the professor (Claude, at J's request)
+
+- Results at a glance (configs A/B on test, RQ1–RQ3 one-liners), first-run downloads, `.env` key, reproduction commands for E1/E2/E3 and the locked final run, notebooks, demo
+- Notebook 02 (E1, H) not listed yet — add a row when it exists
+
 ## [2026-11-11] report | Slides + 10-min script draft (Claude, at J's request)
 
 - `report/FinSight-AI_slides.pptx`: 13 slides (intro, data, pipeline, evaluation, E1, E2, E3, test retrieval, test generation, demo, limitations + AI, conclusion); speaker notes = script
