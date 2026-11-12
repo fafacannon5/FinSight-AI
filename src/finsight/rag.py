@@ -46,6 +46,23 @@ def build_prompt(question: str, docs: list[tuple[str, str]]) -> str:
     )
 
 
+def cited_ids(answer: str, doc_ids: list[str]) -> list[str]:
+    """Doc ids from `doc_ids` that the answer cites, in order of first citation.
+
+    Accepts the formats gpt-oss produced on dev: [123], 【123】, [d123], 【d123】, and several ids in one
+    bracket ([1, 2]). Ids not in `doc_ids` are ignored (the model can only cite what it was given).
+    """
+    import re
+
+    allowed, found = set(doc_ids), []
+    for group in re.findall(r"[\[【]([^\]】]+)[\]】]", answer):
+        for token in re.split(r"[,\s]+", group.strip()):
+            doc_id = token[1:] if token.startswith("d") and token[1:] in allowed else token
+            if doc_id in allowed and doc_id not in found:
+                found.append(doc_id)
+    return found
+
+
 LLM_MODEL = "openai/gpt-oss-120b"  # fixed by wiki/decisions/llm_choice.md (Groq)
 REASONING_EFFORT = "low"           # gpt-oss "thinks" before answering; low keeps token use small
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
