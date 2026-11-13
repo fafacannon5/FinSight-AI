@@ -30,7 +30,6 @@
 \begin{document}
 \input{preamble.tex}
 
-% preamble.tex of the template still prints "CS 541 --- Deep Learning": change it to "CS 541 --- Artificial Intelligence".
 % Arguments: {title}{date}{lecturer}{"By:" field}
 \lecture{Design and Evaluation of a RAG Chatbot: Accuracy--Efficiency Trade-offs in Retrieval}{November 2026}
 {Zhaozhuo Xu}
@@ -395,7 +394,7 @@ unanswerable test set. The correct-refusal rate is therefore uncertain and proba
 \item Answer scores are one joint, ChatGPT-assisted judgement per answer. The proposal planned 30 answers scored
 independently by both of us; we did not do this, so we have no inter-rater agreement.
 \item The choice of $k$ rests on only 20 dev questions.
-\item 14 of the 100 test answers hit the 400-token limit.
+\item 13 of the 100 test answers hit the 400-token limit.
 \item Test latency of config A is unreliable because of background load; E1 and E2 latencies come from different
 machines and are only compared within one table.
 \item The LLM is a hosted model that can change over time; we recorded the model id and date with every answer.
@@ -420,6 +419,7 @@ checked the code with tests and used the saved run records to verify the results
 set of judgments, so we cannot estimate agreement between independent raters.
 
 %==========================================================================================================
+\clearpage
 \section*{References}
 \begin{enumerate}[leftmargin=*]
 \item Johnson, J., Douze, M., \& J\'egou, H. (2019). Billion-scale similarity search with GPUs. \emph{IEEE Transactions on Big Data}.
