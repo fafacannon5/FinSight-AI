@@ -97,6 +97,11 @@ for c in run_e1_001 run_e1_002 run_e1_003 run_e1_004 run_e1_005 run_e1_006 run_b
   KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 python scripts/run_experiment.py experiments/configs/$c.yaml
 done
 
+# E1 corpus-size sweep (10k / 25k sub-corpora, exact vs. IVF nprobe 16)
+for c in run_e1s_001 run_e1s_002 run_e1s_003 run_e1s_004; do
+  KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 python scripts/run_experiment.py experiments/configs/$c.yaml
+done
+
 # E2 — PCA 384/128/64/32 (exact search), then configs B and A in one session (run_e2_004 / 005)
 for c in run_e2_000 run_e2_001 run_e2_002 run_e2_003 run_e2_004 run_e2_005; do
   KMP_DUPLICATE_LIB_OK=TRUE OMP_NUM_THREADS=1 python scripts/run_experiment.py experiments/configs/$c.yaml
@@ -133,6 +138,7 @@ Run from `notebooks/` after the experiments above. They read the result files an
 | Notebook | Content |
 |---|---|
 | `01_data_and_embeddings.ipynb` | dataset statistics, text lengths vs. the encoder limit, embedding cache check |
+| `02_e1_retrieval_methods.ipynb` | E1: accuracy vs. latency of all search methods, memory, IVF speed-up vs. corpus size |
 | `03_e2_pca.ipynb` | E2: explained variance, quality / latency / memory vs. dimension |
 | `04_e3_reliability.ipynb` | E3: top-1 score distributions, τ curve, answer quality vs. k |
 | `05_final_test_results.ipynb` | final test: dev vs. test retrieval, outcome and quality of the 100 answers |
