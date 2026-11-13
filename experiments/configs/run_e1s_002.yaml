@@ -1,0 +1,15 @@
+# E1-scale: FAISS IVF at 10k docs. nlist stays 240 (the 57k-grid value) on purpose: comparing
+# latency across corpus sizes requires the SAME index config, even though sqrt(10000) = 100.
+# Latency protocol: OMP_NUM_THREADS=1 (matches run_e1_005's 57,638-doc reference point).
+run_id: "run_e1s_002"
+experiment: e1-scale
+hypothesis: "IVF's speed-up over exact search grows with corpus size (sublinear probe vs full scan)"
+dataset: fiqa
+split: dev
+method: faiss_ivf
+method_params: {nlist: 240, nprobe: 16}
+pca_dim: null
+k: 10
+corpus_size: 10000
+latency_queries: 200
+random_seed: 42

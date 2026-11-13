@@ -1,0 +1,15 @@
+# E1-scale: same settings as the main grid (run_e1_001), corpus subsampled to 10k —
+# all relevant docs kept, the rest filled at random with seed 42 (run_experiment.py handles it).
+# Latency protocol: run with OMP_NUM_THREADS=1 to match the 57,638-doc reference point (run_e1_001).
+run_id: "run_e1s_001"
+experiment: e1-scale
+hypothesis: "IVF's speed-up over exact search grows with corpus size (sublinear probe vs full scan)"
+dataset: fiqa
+split: dev                  # tuning split; FiQA test stays locked
+method: torch_knn
+method_params: {}
+pca_dim: null
+k: 10
+corpus_size: 10000
+latency_queries: 200
+random_seed: 42

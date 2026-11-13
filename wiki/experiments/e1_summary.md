@@ -39,6 +39,7 @@ matters more than speed, nprobe 64 is exact at ~2×.
 | [005](e1_run_005.md) | nprobe 16 within 2 pt and ≥3× faster | 0.4383 | 0.3631 | 0.1065 | partly: 7.2× yes, 2.82 pt no |
 | [006](e1_run_006.md) | nprobe 64 within 1 pt, speed-up shrinks | 0.4665 | 0.3882 | 0.3659 | confirmed (0.00 pt, 2.1×) |
 | [bonus 001](bonus_run_001.md) | our KMeansIndex within 3 pt of faiss_ivf | 0.4435 | 0.3674 | 1.9781 | confirmed (+0.52 pt vs IVF) |
+| [e1s 001–004](e1_scale.md) | IVF speed-up grows with corpus size | 0.6012 / 0.5124 (ivf @10k/25k) | — | speed-up 3.4× / 6.5× / 7.2× | confirmed, sub-linear (bound ≈ 15×) |
 
 ## Findings so far
 
