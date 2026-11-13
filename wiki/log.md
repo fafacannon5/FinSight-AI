@@ -2,6 +2,13 @@
 
 > Append-only, newest first. Format: `## [YYYY-MM-DD] {operation} | {description}`
 
+## [2026-11-12] report | E1 corpus-size result added to the report (Claude, at J's request)
+
+- §5.1: one paragraph + Figure `fig:scaling` (`e1_scaling.pdf`) replacing the placeholder comment;
+  numbers from [e1_scale](experiments/e1_scale.md). Notes the 7.2× (one thread) vs. 6.7× (natural threads) protocol difference implicitly via "one thread"
+- README: notebook 02 row and the e1s_001–004 commands
+- Open for H: overlapping minor tick labels on the x-axis of `e1_scaling` / missing spaces in both caption.txt files
+
 ## [2026-11-12] experiment | E1-scale: corpus size sweep 10k / 25k / 57,638 (runs e1s_001–004)
 
 - Owner H. `nlist = 240` fixed across sizes (probe fraction 6.7 % constant), all relevant docs kept in

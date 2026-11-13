@@ -218,8 +218,22 @@ Our own $k$-means index reaches the same accuracy as FAISS IVF at the same setti
 but is 17$\times$ slower than FAISS IVF and even slower than exact search, because it loops over queries and
 cells in Python while FAISS uses optimised C++. Our implementation reproduces the accuracy of an industrial index,
 but not its speed.
-% If H finishes the corpus-size sweep (10k / 25k / 57,638 docs), add one sentence and a figure here on how the
-% IVF speed-up grows with N.
+
+To check that the speed-up of IVF grows with the corpus, we repeated exact search and IVF ($n_{\text{list}} = 240$,
+$n_{\text{probe}} = 16$) on random sub-corpora of 10,000 and 25,000 posts that keep every relevant post
+(Figure~\ref{fig:scaling}, one thread for both methods). The speed-up grows from 3.4$\times$ to 6.5$\times$ and
+7.2$\times$ on the full corpus, while the loss stays at 2.5--2.8 points of Recall@10. It stays below the bound of
+$240/16 = 15\times$ because IVF also scans a fixed share of the corpus and pays fixed costs per query. Recall@10
+falls with $N$ for both methods only because a larger corpus adds distractors.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{e1_scaling.pdf}
+\caption{Exact search vs.\ FAISS IVF ($n_{\text{probe}} = 16$) on FiQA dev for three corpus sizes, one thread.
+Left: p95 latency per query (log scale); right: speed-up of IVF over exact search, with the bound
+$240/16 = 15\times$ dashed.}
+\label{fig:scaling}
+\end{figure}
 
 \begin{table}[h]
 \centering
