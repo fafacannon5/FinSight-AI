@@ -10,7 +10,7 @@ The same text is in the speaker notes of `FinSight-AI_slides.pptx`.
 | 3 | FiQA: real forum questions, incomplete labels | J | 0:50 |
 | 4 | One pipeline, two final configurations | J | 0:50 |
 | 5 | How we evaluate | H | 0:50 |
-| 6 | E1: an approximate index buys speed with accuracy | H | 1:15 |
+| 6 | E1: an approximate index buys speed with accuracy | H | 1:25 |
 | 7 | E2: 128 dimensions is the knee of the PCA curve | J | 1:00 |
 | 8 | E3: a similarity threshold can refuse unanswerable questions | J | 1:10 |
 | 9 | Test set (run once): the dev conclusions hold | H | 0:50 |
@@ -39,9 +39,9 @@ Our pipeline has four steps. We embed the question with MiniLM into 384 dimensio
 
 We measure three things. Retrieval: Recall at 10 — the share of relevant posts in the top 10 — plus nDCG and MRR, which reward ranking them high, because the LLM only sees the top five and refusal only looks at the top one. We also measure latency per single query and index memory. Refusal: the answer rate on answerable questions and the correct-refusal rate on unanswerable ones; we pick tau by balanced accuracy, because with 450 versus 10 questions, 'always answer' already gets 98 percent plain accuracy. Answers: a one-to-three score for correctness and for groundedness. The protocol is strict: everything is tuned on dev, and test was run once.
 
-## 6. E1: an approximate index buys speed with accuracy (H, 1:15)
+## 6. E1: an approximate index buys speed with accuracy (H, 1:25)
 
-First, search. Our PyTorch KNN and FAISS Flat give exactly the same scores, which validates our implementation, and their speed is a tie. IVF splits the corpus into 240 k-means cells and only searches the closest few. Probing one cell is 47 times faster but loses 18 points of recall. Each extra cell buys accuracy back, at a growing cost in speed; at 64 cells it is exact again. We chose 16 cells: minus 2.8 points for 6.7 times lower latency. As a bonus we implemented the same index ourselves in PyTorch. It matches FAISS on accuracy but is 17 times slower, because it loops in Python while FAISS uses optimised C++.
+First, search. Our PyTorch KNN and FAISS Flat give exactly the same scores, which validates our implementation, and their speed is a tie. IVF splits the corpus into 240 k-means cells and only searches the closest few. Probing one cell is 47 times faster but loses 18 points of recall. Each extra cell buys accuracy back, at a growing cost in speed; at 64 cells it is exact again. We chose 16 cells: minus 2.8 points for 6.7 times lower latency. The gain grows with the corpus: measured on one thread, IVF is 3.4 times faster on 10 thousand posts and 7.2 times on the full corpus, with the same small accuracy loss. As a bonus we implemented the same index ourselves in PyTorch. It matches FAISS on accuracy but is 17 times slower, because it loops in Python while FAISS uses optimised C++.
 
 ## 7. E2: 128 dimensions is the knee of the PCA curve (J, 1:00)
 
