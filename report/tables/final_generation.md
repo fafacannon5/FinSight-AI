@@ -5,4 +5,4 @@
 | … no relevant doc in top 5 | 15 | 1.87 | 2.33 |
 | … answer hit the 400-token cap | 13 | 2.08 | 2.15 |
 | τ-refused, LLM answered anyway | 7 | 2.29 | 2.57 |
-| Dev reference (k = 5, 20 questions) | 20 | 2.53 | 2.87 |
+| Dev reference (k = 5, 15 answered of 20 questions) | 15 | 2.53 | 2.87 |

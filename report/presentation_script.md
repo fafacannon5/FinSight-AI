@@ -29,7 +29,7 @@ Language models answer fluently, but in finance they can make things up. Retriev
 
 ## 3. FiQA: real forum questions, incomplete labels (J, 0:40)
 
-We use FiQA from the BEIR benchmark: 57,638 finance forum posts and real user questions. We tuned everything on 500 dev questions and used the 648 test questions only once, at the end. Two facts matter. First, 19 percent of the posts exceed the encoder's 256-token limit and are cut off. Second, the labels are incomplete: we removed the labelled posts of 50 questions to make them unanswerable, checked each one by hand, and only 10 really were.
+We use FiQA from the BEIR benchmark: 57,638 finance forum posts and real user questions. We tuned everything on 500 dev questions and used the 648 test questions only once, at the end. Two facts matter. First, 19 percent of the posts exceed the encoder's 256-token limit and are cut off. Second, the labels are incomplete: we removed the labelled posts of 50 questions to make them unanswerable, checked each one by hand, and for only 10 did we find no answer in the top five posts.
 
 ## 4. One pipeline, two final configurations (J, 0:40)
 
@@ -41,7 +41,7 @@ We measure three things. Retrieval: Recall at 10, plus nDCG and MRR, which rewar
 
 ## 6. E1: an approximate index buys speed with accuracy (H, 1:05)
 
-First, search. Our PyTorch KNN and FAISS Flat return identical scores, which validates our implementation, and their speed is a tie. IVF splits the corpus into 240 k-means cells and searches only the closest few. One cell is 47 times faster but loses 18 points of recall; at 64 cells it is exact again. We chose 16: minus 2.8 points for 6.7 times lower latency. The gain grows with the corpus: on one thread, 3.4 times on 10 thousand posts and 7.2 times on the full corpus, with the same small loss. Our own PyTorch version of the index matches FAISS on accuracy but is 17 times slower, because it loops in Python.
+First, search. Our PyTorch KNN and FAISS Flat return identical scores, which validates our implementation, and their speed is a tie. IVF splits the corpus into 240 k-means cells and searches only the closest few. One cell is 47 times faster but loses 18 points of recall; at 64 cells it matches exact search on dev. We chose 16: minus 2.8 points for 6.7 times lower latency. The gain grows with the corpus: on one thread, 3.4 times on 10 thousand posts and 7.2 times on the full corpus, with the same small loss. Our own PyTorch version of the index matches FAISS on accuracy but is 17 times slower, because it loops in Python.
 
 ## 7. E2: 128 dimensions is the knee of the PCA curve (J, 0:50)
 
@@ -49,7 +49,7 @@ Second, PCA, with exact search, so any change comes from PCA alone. At 128 dimen
 
 ## 8. E3: a similarity threshold can refuse unanswerable questions (J, 0:50)
 
-Third, reliability. The top-1 cosine separates answerable from unanswerable questions with an AUC of 0.82; before the manual check it was only 0.56. With tau at 0.60, config A answers 76 percent of answerable questions and rejects 8 of the 10 unanswerable ones. Config B needs its own tau, 0.66, because PCA raises all cosines. With only ten questions this is uncertain. For k, more posts raised correctness but lowered groundedness, so we chose five.
+Third, reliability. The top-1 cosine separates answerable from unanswerable questions with an AUC of 0.82; before the manual check it was only 0.56. With tau at 0.60, config A answers 76 percent of answerable questions and rejects 8 of the 10 unanswerable ones, on the same dev set we used to choose tau. Config B needs its own tau, 0.66, because PCA raises all cosines. With only ten questions this is uncertain. For k, more posts raised correctness but lowered groundedness, so we chose five.
 
 ## 9. Test set (run once): the dev conclusions hold (H, 0:40)
 
@@ -57,7 +57,7 @@ We then ran the test set once, with nothing changed. Both configurations score s
 
 ## 10. Answers fail when retrieval fails (H, 0:50)
 
-For generation we sampled 100 test questions. The threshold refused 16, the model refused 14 more, and 70 got an answer, with mean correctness 2.3 out of 3. The key result is on the right: with a relevant post among the five, correctness is 2.36; without one, it drops to 1.87, but groundedness stays the same. The model stays faithful to the posts it gets, even the wrong ones. So the errors come mainly from retrieval.
+For generation we sampled 100 test questions. 84 passed the threshold, the model refused 14 of them, and 70 got an answer, with mean correctness 2.3 out of 3. The key result is on the right: with a relevant post among the five, correctness is 2.36; without one, it drops to 1.87, but groundedness stays the same. The model stays faithful to the posts it gets, even the wrong ones. This points to retrieval as the main source of errors.
 
 ## 11. Demo: the chatbot with config A (J, 0:45)
 
@@ -65,7 +65,7 @@ Here is our Streamlit demo with config A: k equals five and tau 0.60. [Play the 
 
 ## 12. Limitations and our AI teammate (H, 0:45)
 
-Our main limitations: one in five posts is truncated; tau rests on only ten unanswerable questions; and each answer has one joint score, so we have no inter-rater agreement. We disclose all AI use in AI_USAGE.md. Claude wrote most of the code, except the search back ends, which Haiyan wrote; it also ran experiments, made the figures and drafted the report and slides, which we revised. ChatGPT drafted the scores and verdicts; we decided every item together. The AI was sometimes confidently wrong: Claude claimed a merge was pushed when it was not, and a ChatGPT draft gave refusals full groundedness. Tests and saved run records let us catch this.
+Our main limitations: one in five posts is truncated; tau rests on only ten unanswerable questions; and each answer has one joint score, so we have no inter-rater agreement. We disclose all AI use in AI_USAGE.md. Claude wrote most of the code, except the search back ends, which Haiyan wrote; it also ran experiments, made the figures and drafted the report and slides, which we revised. ChatGPT drafted the scores and verdicts; we decided every item together. The AI was sometimes confidently wrong: a ChatGPT draft gave refusals full groundedness, so we left refusals unscored and counted them separately. Tests and saved run records let us catch such errors.
 
 ## 13. Retrieval is where accuracy is won or lost (J, 0:20)
 

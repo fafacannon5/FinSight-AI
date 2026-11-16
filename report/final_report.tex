@@ -100,8 +100,9 @@ posts no other question needs and removed those posts (116 in total) from the co
 does not guarantee that a question becomes unanswerable, because FiQA is a forum with many answers per topic and
 the labels mark only some of them. We therefore checked every candidate by hand: for each one we read the top-5
 retrieved posts and kept it only if none of them answered the question. ChatGPT drafted a verdict and a reason for
-each candidate; we discussed every candidate together and made the final decision. Only \textbf{10 of the 50}
-candidates were really unanswerable; in the other 40, an unlabelled post still answered the question. These 10
+each candidate; we discussed every candidate together and made the final decision. For only \textbf{10 of the 50}
+candidates did we find no sufficient evidence in the top-5 retrieved posts; in the other 40, an unlabelled post
+still answered the question. These 10
 questions, together with the 450 remaining answerable dev questions, are the refusal benchmark.
 
 %==========================================================================================================
@@ -170,7 +171,8 @@ Rank matters for two reasons: the LLM only sees the first five posts, and the re
 top-1 score.
 
 \paragraph{Efficiency.} Latency is measured per single query (batch size 1, as in a chatbot), after a warm-up, over
-three passes of all queries; we report the mean and the 95th percentile (p95). We also report the index memory.
+three passes of the first 200 dev queries (the E1 latencies in Table~\ref{tab:e1} come from a separate benchmark
+script over 500 queries at the library's natural thread count); we report the mean and the 95th percentile (p95). We also report the index memory.
 Latencies are only compared within one session on one machine; differences below about 10\% are within the noise
 we observed and are treated as ties.
 
@@ -186,7 +188,7 @@ but only 0.5 balanced accuracy.
 (3 = everything is supported and correctly cited, 2 = mostly supported, 1 = made up or from outside knowledge).
 The two scores fail in different ways: ``correct but not grounded'' means the model used its own knowledge, which
 the user cannot verify; ``grounded but wrong'' means retrieval gave the wrong posts. Refusals are not scored; they
-are labelled \emph{refused} (the posts really lack the answer) or \emph{refused wrongly} (they contain it). ChatGPT
+are labelled \emph{refused} (we found no sufficient evidence in the posts) or \emph{refused wrongly} (they contain it). ChatGPT
 drafted a score and a reason for every answer; we discussed each item together and decided the final scores. This
 is one joint score per answer, so we cannot report agreement between two independent raters.
 
@@ -206,9 +208,10 @@ both do the same $O(Nd)$ scan, which for a single query is limited by memory ban
 
 IVF shows a clear accuracy--speed curve. With $n_{\text{probe}} = 1$ it is 47$\times$ faster but loses
 18.35 points of Recall@10; each larger $n_{\text{probe}}$ buys accuracy back at a higher price in speed. At
-$n_{\text{probe}} = 64$ (about 27\% of the corpus visited) IVF reproduces the exact result, so the losses at small
+$n_{\text{probe}} = 64$ (about 27\% of the corpus visited) IVF obtains the same aggregate metrics as exact search on this dev set, so the losses at small
 $n_{\text{probe}}$ come from relevant posts that lie in cells the query does not visit. We chose
-$n_{\text{probe}} = 16$ as the trade-off: $-2.82$ points for a 6.7$\times$ lower p95. The index adds less than
+$n_{\text{probe}} = 16$ as the trade-off: $-2.82$ points for a 6.7$\times$ lower p95 (natural thread count, Table~\ref{tab:e1}; the 7.2$\times$ below is
+measured with one thread). The index adds less than
 1~MB (centroids and inverted lists), so IVF saves time but not memory.
 
 Our own $k$-means index reaches the same accuracy as FAISS IVF at the same settings (Recall@10 0.4435 vs.\ 0.4383)
@@ -254,7 +257,7 @@ per query does not depend on $d$. We therefore chose \textbf{128 dimensions}: 3$
 
 An important difference from IVF: the IVF loss can be bought back with a larger $n_{\text{probe}}$, while the
 information removed by PCA is gone. Combining both in config B (128-d + IVF 16) costs 4.88 points of Recall@10 on
-dev, slightly less than the sum of the two separate losses, and is 30$\times$ faster than config A in the same
+dev, slightly less than the sum of the two separate losses, and its retrieval p95 is 30$\times$ lower than config A's in the same dev
 session (Table~\ref{tab:final}).
 
 \begin{figure}[h]
@@ -288,7 +291,7 @@ uncertain: the 95\% confidence interval for 8/10 is roughly 0.49--0.94.
 \begin{table}[h]
 \centering
 \resizebox{\linewidth}{!}{\input{tables/e3_tau.tex}}
-\caption{E3: refusal threshold on FiQA dev (450 answerable, 10 verified unanswerable questions).}
+\caption{E3: refusal threshold on FiQA dev (450 answerable, 10 manually reviewed unanswerable questions).}
 \label{tab:tau}
 \end{table}
 
@@ -296,7 +299,7 @@ uncertain: the 95\% confidence interval for 8/10 is roughly 0.49--0.94.
 \centering
 \includegraphics[width=0.6\linewidth]{e3_top1_distribution.pdf}
 \includegraphics[width=0.9\linewidth]{e3_tau_curve.pdf}
-\caption{E3 on FiQA dev. Top: top-1 cosine of answerable vs.\ verified unanswerable questions. Bottom: refusal
+\caption{E3 on FiQA dev. Top: top-1 cosine of answerable vs.\ manually reviewed unanswerable questions. Bottom: refusal
 threshold grid search for configs A and B.}
 \label{fig:tau}
 \end{figure}
@@ -333,17 +336,18 @@ speed-up of \textbf{30$\times$} as the speed result. We did not re-run the test,
 \label{tab:final}
 \end{table}
 
-\paragraph{Generation.} Of the 100 test questions, the threshold refused 16, so the system's answer rate is 0.84
-(0.76 on dev). Of the remaining 84, the LLM itself refused 14: in 10 cases correctly, in 4 cases although the
-answer was in the posts. The system gave a real answer to \textbf{70} questions, with mean correctness 2.26 and
-groundedness 2.36 (Table~\ref{tab:gen}). These scores are lower than on dev (2.53 / 2.87 on 20 questions); the
+\paragraph{Generation.} Of the 100 test questions, 84 passed the similarity threshold and 16 were refused by
+it (on dev, 76\% of the answerable questions passed). The LLM then refused 14 of these 84: in 10 cases correctly,
+in 4 cases although the answer was in the posts. In the end, \textbf{70} questions received an answer, with mean correctness 2.26 and
+groundedness 2.36 (Table~\ref{tab:gen}). These scores are lower than on dev (2.53 / 2.87 on the 15 answered of 20 dev questions); the
 dev sample is small, so part of this difference may be chance.
 
 The most useful result is the split by retrieval success (Figure~\ref{fig:test}, bottom b). When a labelled
 relevant post is among the five posts given to the LLM, correctness is 2.36; when none is, it drops to 1.87, while
-groundedness stays the same (2.36 vs.\ 2.33). The LLM stays faithful to the posts it receives even when they are
-the wrong posts. In our system, errors come mainly from \textbf{retrieval}, not from generation, so better retrieval
-would help more than a better prompt. We also saw that 13 of the answered questions hit the 400-token output limit
+groundedness stays the same (2.36 vs.\ 2.33). So we observed higher mean correctness when the top 5 contained a
+labelled relevant post, and the LLM stayed faithful to the posts it received even when they were the wrong posts.
+This suggests that in our system errors come mainly from \textbf{retrieval}, not from generation, so better
+retrieval would likely help more than a better prompt. We also saw that 13 of the answered questions hit the 400-token output limit
 (the reasoning tokens of gpt-oss count toward it), and these answers scored lower (2.08 / 2.15).
 
 \begin{table}[h]
@@ -383,7 +387,7 @@ On 20 dev questions, increasing $k$ from 1 to 10 raised mean correctness from 2.
 groundedness from 3.00 to 2.65 among the answers the model gave. The number of answers also increased from 11 to
 17, so the averages reflect different sets of questions. We chose $k=5$ as a compromise. With $\tau=0.60$,
 configuration A passed 76\% of answerable dev questions through the similarity gate and rejected 8 of the 10
-manually reviewed unanswerable cases. The threshold was selected on this same small dev benchmark, so its
+manually reviewed unanswerable dev cases (the same benchmark used to choose $\tau$). The threshold was selected on this same small dev benchmark, so its
 performance on unseen unanswerable questions remains uncertain.
 
 \subsection{Limitations}
@@ -412,8 +416,7 @@ verdicts for the 50 unanswerable candidates, and gave a written reason for each 
 and decided the final judgments together. The written reasons made it easier to review why a response received a
 particular score. Every use of AI is listed in \texttt{AI\_USAGE.md} in our repository.
 
-The AI sometimes made confident claims that we had to check. For example, Claude said a merge had been pushed, but
-the repository status showed otherwise. In the scoring work, an early ChatGPT draft assigned full groundedness credit to
+The AI sometimes made confident claims that we had to check. In the scoring work, an early ChatGPT draft assigned full groundedness credit to
 refusals. We corrected that by leaving both quality scores blank for refusals and counting them separately. We
 checked the code with tests and used the saved run records to verify the results. The scoring process produced one
 set of judgments, so we cannot estimate agreement between independent raters.
